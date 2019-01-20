@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: golang:1.11
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-go-{{ .Branch }}-{{ checksum "go.mod" }}
+            - v1-go-master-{{ checksum "go.mod" }}
+            - v1-go-
+      - run: go test ./...
+      - save_cache:
+          key: v1-go-{{ .Branch }}-{{ checksum "go.mod" }}
+          paths:
+            - /go/cache
+            - /go/src
+            - /go/pkg
