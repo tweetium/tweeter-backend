@@ -1,0 +1,16 @@
+version: "3.2"
+
+services:
+  app:
+    container_name: app
+    image: golang:1.11
+    volumes:
+      - .:/app
+      - go-cache:/go
+    working_dir: /app
+    environment:
+      PORT: 80
+    command: go run main.go
+
+volumes:
+  go-cache:
