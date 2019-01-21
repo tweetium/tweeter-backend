@@ -3,7 +3,7 @@ version: "3.2"
 services:
   app:
     container_name: app
-    image: golang:1.11
+    build: ./
     volumes:
       - .:/app
       - go-cache:/go
