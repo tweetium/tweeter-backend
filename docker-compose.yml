@@ -10,7 +10,13 @@ services:
     working_dir: /app
     environment:
       PORT: 80
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/postgres?sslmode=disable"
     command: go run main.go
+    depends_on:
+      - db
+  db:
+    container_name: db
+    image: postgres:11.1
 
 volumes:
   go-cache:
