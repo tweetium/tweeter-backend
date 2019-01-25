@@ -3,6 +3,11 @@ jobs:
   build:
     docker:
       - image: golang:1.11
+      - image: postgres:11.1
+        name: db
+    environment:
+      - GOCACHE: /go/cache
+      - DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres?sslmode=disable
     steps:
       - checkout
       - restore_cache:
