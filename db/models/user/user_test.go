@@ -1,20 +1,14 @@
 package user
 
 import (
-	"log"
 	"reflect"
 	"testing"
 	"time"
 	"tweeter/db"
-	"tweeter/util"
 )
 
-// Initializes the database for the tests
 func init() {
-	err := db.Init(util.MustGetEnv("DATABASE_URL"))
-	if err != nil {
-		log.Panicf("Failed to initialize DB, err: %s", err)
-	}
+	db.InitForTests()
 }
 
 func TestCreate(t *testing.T) {

@@ -8,6 +8,7 @@ jobs:
     environment:
       - GOCACHE: /go/cache
       - DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres?sslmode=disable
+    working_directory: /app
     steps:
       - checkout
       - restore_cache:
