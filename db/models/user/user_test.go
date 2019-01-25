@@ -1,6 +1,7 @@
 package user
 
 import (
+	"log"
 	"reflect"
 	"testing"
 	"time"
@@ -10,7 +11,10 @@ import (
 
 // Initializes the database for the tests
 func init() {
-	db.Init(util.MustGetEnv("DATABASE_URL"))
+	err := db.Init(util.MustGetEnv("DATABASE_URL"))
+	if err != nil {
+		log.Panicf("Failed to initialize DB, err: %s", err)
+	}
 }
 
 func TestCreate(t *testing.T) {
