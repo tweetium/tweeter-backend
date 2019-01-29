@@ -29,7 +29,7 @@ var ErrUserNotFound = errors.New("could not find user from information given")
 // ErrInternalError is the error returned when normal flow failed (db error, timeout, etc)
 var ErrInternalError = errors.New("internal error, retry later")
 
-// ErrMismatchedPassword is the error returned by Validate when email / password do not match
+// ErrMismatchedPassword is the error returned by Validate when password do not match stored password
 var ErrMismatchedPassword = errors.New("invalid password given")
 
 // ErrPasswordTooShort is the error returned by Create when the password is too short
