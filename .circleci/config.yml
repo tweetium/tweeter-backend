@@ -22,7 +22,8 @@ jobs:
             DOCKERIZE_VERSION: v0.3.0
       # Wait for postgres to accept connections before running tests
       - run: dockerize -wait tcp://db:5432 -timeout 30s
-      - run: go test ./...
+      - run: gotestsum
+      - run: golangci-lint run ./...
       - save_cache:
           key: v1-go-{{ .Branch }}-{{ checksum "go.mod" }}
           paths:
