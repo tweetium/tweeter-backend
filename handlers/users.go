@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"tweeter/db/models/user"
 	"tweeter/handlers/responses"
@@ -40,7 +41,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		// This is unexpected (but possible), so let's log this internally here
-		log.Printf("Failed to read request body, err: %s", err)
+		logrus.WithFields(logrus.Fields{"err": err}).Warn("Failed to read request body")
 		renderErrors(w, http.StatusBadRequest, responses.Error{
 			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body"),
 		})
@@ -78,7 +79,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 				Detail: fmt.Sprintf("User already exists for %s", createReq.Email),
 			})
 		default:
-			log.Printf("Uncaught error for user.Create, err: %s", err)
+			logrus.WithFields(logrus.Fields{"err": err}).Warn("Uncaught error for user.Create")
 			renderErrors(w, http.StatusInternalServerError, responses.ErrInternalError)
 		}
 		return
