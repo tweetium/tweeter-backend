@@ -16,6 +16,12 @@ jobs:
             - v1-go-{{ .Branch }}-{{ checksum "go.mod" }}
             - v1-go-master-{{ checksum "go.mod" }}
             - v1-go-
+      - run:
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      # Wait for postgres to accept connections before running tests
+      - run: dockerize -wait tcp://db:5432 -timeout 30s
       - run: go test ./...
       - save_cache:
           key: v1-go-{{ .Branch }}-{{ checksum "go.mod" }}
