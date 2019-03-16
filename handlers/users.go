@@ -79,7 +79,8 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 				Detail: fmt.Sprintf("User already exists for %s", createReq.Email),
 			})
 		default:
-			logrus.WithFields(logrus.Fields{"err": err}).Warn("Uncaught error for user.Create")
+			// Logged as error because this indicates a programmer error, should fix the code if this happens
+			logrus.WithFields(logrus.Fields{"err": err}).Error("Uncaught error for user.Create")
 			renderErrors(w, http.StatusInternalServerError, responses.ErrInternalError)
 		}
 		return
