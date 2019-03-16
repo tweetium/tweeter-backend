@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS users (
+  user_id BIGSERIAL PRIMARY KEY NOT NULL,
+  email VARCHAR (300) UNIQUE,
+  password VARCHAR (500),
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
