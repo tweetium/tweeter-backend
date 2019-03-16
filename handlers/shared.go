@@ -11,6 +11,8 @@ import (
 func render(w http.ResponseWriter, statusCode int, resp interface{}) {
 	respBytes, err := json.Marshal(resp)
 	if err != nil {
+		// This is an error because resp is controlled by the programmer and
+		// should be correct in all situations
 		logrus.WithFields(logrus.Fields{"err": err}).Error("Resp passed to render was not json.Marshalable")
 		return
 	}
