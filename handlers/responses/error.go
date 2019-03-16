@@ -1,5 +1,11 @@
 package responses
 
+// ErrInternalError is a generic error used for all internal errors
+var ErrInternalError = Error{
+	Title:  "Internal Error",
+	Detail: "Encountered internal error, please try again in a few minutes.",
+}
+
 // ErrorResponse is a type representing the error response json
 // returned to the client
 type ErrorResponse struct {

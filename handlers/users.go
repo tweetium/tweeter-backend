@@ -61,14 +61,26 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// TODO: classify this into internal error (couldn't connect / exec on db)
-	// or other errors like invalid user (email already exists, etc)
 	var newUser user.User
 	newUser, err = user.Create(createReq.Email, createReq.Password)
 	if err != nil {
-		renderErrors(w, http.StatusInternalServerError, responses.Error{
-			Title: "User Creation Error", Detail: fmt.Sprintf("Failed to create user, err: %s", err),
-		})
+		switch err {
+		case user.ErrInternalError:
+			renderErrors(w, http.StatusInternalServerError, responses.ErrInternalError)
+		case user.ErrPasswordTooShort:
+			renderErrors(w, http.StatusBadRequest, responses.Error{
+				Title:  "Password Too Short",
+				Detail: fmt.Sprintf("Password is too short, minimum password length: %d", user.MinimumPasswordLength),
+			})
+		case user.ErrUserEmailAlreadyExists:
+			renderErrors(w, http.StatusBadRequest, responses.Error{
+				Title:  "Email Already Exists",
+				Detail: fmt.Sprintf("User already exists for %s", createReq.Email),
+			})
+		default:
+			log.Printf("Uncaught error for user.Create, err: %s", err)
+			renderErrors(w, http.StatusInternalServerError, responses.ErrInternalError)
+		}
 		return
 	}
 
