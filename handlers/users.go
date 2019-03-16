@@ -24,7 +24,8 @@ func UsersHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func parseID(w http.ResponseWriter, req *http.Request) (ID user.ID, ok bool) {
+// parseID is unused, but will be used when user GET is added
+func parseID(w http.ResponseWriter, req *http.Request) (ID user.ID, ok bool) { //nolint
 	idString := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/api/v1/users/"), "/")
 	id, err := user.ParseID(idString)
 	if err != nil {
