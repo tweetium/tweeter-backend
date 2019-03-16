@@ -63,8 +63,8 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 
 	// TODO: classify this into internal error (couldn't connect / exec on db)
 	// or other errors like invalid user (email already exists, etc)
-	// TODO: return information about the user just created?
-	_, err = user.Create(createReq.Email, createReq.Password)
+	var newUser user.User
+	newUser, err = user.Create(createReq.Email, createReq.Password)
 	if err != nil {
 		renderErrors(w, http.StatusInternalServerError, responses.Error{
 			Title: "User Creation Error", Detail: fmt.Sprintf("Failed to create user, err: %s", err),
@@ -72,5 +72,9 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	render(w, http.StatusOK, responses.NewSuccessResponse())
+	render(w, http.StatusOK, responses.NewSuccessResponse(struct {
+		ID user.ID
+	}{
+		newUser.ID,
+	}))
 }
