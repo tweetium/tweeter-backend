@@ -10,6 +10,7 @@ import (
 
 	"tweeter/db"
 	"tweeter/handlers"
+	"tweeter/handlers/middleware"
 	"tweeter/util"
 )
 
@@ -26,21 +27,11 @@ func main() {
 }
 
 func runWebserver(port uint32) {
-	http.HandleFunc("/api/v1/users", logMiddleware(handlers.UsersHandler))
+	http.HandleFunc("/api/v1/users", middleware.Log(handlers.UsersHandler))
 
 	logrus.WithFields(logrus.Fields{"port": port}).Info("Http server started")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Http server exited with error")
-	}
-}
-
-func logMiddleware(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		logrus.WithFields(logrus.Fields{
-			"method": r.Method,
-			"url":    r.URL,
-		}).Debug("Received http request")
-		handler(w, r)
 	}
 }
