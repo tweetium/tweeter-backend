@@ -2,11 +2,11 @@ package db
 
 import (
 	"database/sql"
-	"log"
 	"tweeter/util"
 
 	_ "github.com/lib/pq"                     // required driver
 	_ "github.com/mattes/migrate/source/file" // required driver
+	"github.com/sirupsen/logrus"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mattes/migrate"
@@ -24,7 +24,7 @@ func Init(dbURL string) (err error) {
 	}
 
 	err = migrateDatabase(dbURL)
-	log.Printf("Connected to database at: %s", dbURL)
+	logrus.WithFields(logrus.Fields{"url": dbURL}).Info("Connected to database")
 	return
 }
 
@@ -39,7 +39,6 @@ func migrateDatabase(dbURL string) error {
 		return err
 	}
 
-	log.Printf("Running migrations..")
 	m, err := migrate.NewWithDatabaseInstance(migrationPath, "postgres", driver)
 	if err != nil {
 		return err
@@ -48,12 +47,13 @@ func migrateDatabase(dbURL string) error {
 	m.Up()
 	version, dirty, err := m.Version()
 	if err != nil {
-		log.Printf("Err when running migration.Version(): %s", err)
-	} else {
-		log.Printf("Currently at version: %d, dirty: %t", version, dirty)
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Error running migration.Version()")
 	}
 	m.Close()
-	log.Printf("Done running migrations!")
+	logrus.WithFields(logrus.Fields{
+		"version": version,
+		"dirty":   dirty,
+	}).Info("Finished running migrations!")
 
 	return nil
 }
@@ -64,7 +64,7 @@ func InitForTests() {
 	migrationPath = "file:///app/migrations/"
 	err := Init(util.MustGetEnv("DATABASE_URL"))
 	if err != nil {
-		log.Panicf("Failed to initialize DB for tests, err: %s", err)
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to initialize DB for tests")
 	}
 }
 

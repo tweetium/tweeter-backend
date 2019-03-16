@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	_ "github.com/lib/pq"                     // required driver
 	_ "github.com/mattes/migrate/source/file" // required driver
+	"github.com/sirupsen/logrus"
 
 	"tweeter/db"
 	"tweeter/handlers"
@@ -19,7 +19,7 @@ func main() {
 
 	err := db.Init(dbURL)
 	if err != nil {
-		log.Fatalf("Failed to initialize database: %s", err)
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to initialize database")
 	}
 
 	runWebserver(port)
@@ -28,13 +28,19 @@ func main() {
 func runWebserver(port uint32) {
 	http.HandleFunc("/api/v1/users", logMiddleware(handlers.UsersHandler))
 
-	log.Printf("Listening at :%d!..", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	logrus.WithFields(logrus.Fields{"port": port}).Info("Http server started")
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Http server exited with error")
+	}
 }
 
 func logMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Received request: %s - %s", r.Method, r.URL)
+		logrus.WithFields(logrus.Fields{
+			"method": r.Method,
+			"url":    r.URL,
+		}).Debug("Received http request")
 		handler(w, r)
 	}
 }
