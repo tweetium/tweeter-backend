@@ -44,7 +44,11 @@ func migrateDatabase(dbURL string) error {
 		return err
 	}
 
-	m.Up()
+	err = m.Up()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Error running migration.Up()")
+	}
+
 	version, dirty, err := m.Version()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Error running migration.Version()")
