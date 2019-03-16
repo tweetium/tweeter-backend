@@ -38,6 +38,9 @@ var ErrPasswordTooShort = errors.New("password too short")
 // ErrUserEmailAlreadyExists is the error returned by Create when the email already exists
 var ErrUserEmailAlreadyExists = errors.New("user already exists for email")
 
+// ErrUserIDNotInterger is the error when trying to parse a userID string that is not an integer
+var ErrUserIDNotInterger = errors.New("user id is not an integer")
+
 // ID is a type alias for the user's ID type
 type ID uint64
 
@@ -46,7 +49,7 @@ func ParseID(idString string) (ID, error) {
 	// Parse the string as base10 into a int64
 	idInt, err := strconv.ParseInt(idString, 10, 64)
 	if err != nil {
-		return 0, err
+		return 0, ErrUserIDNotInterger
 	}
 
 	id := ID(idInt)

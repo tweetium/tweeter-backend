@@ -130,7 +130,7 @@ func TestParseID(t *testing.T) {
 		name    string
 		args    args
 		want    ID
-		wantErr bool
+		wantErr error
 	}{
 		{
 			name: "simple",
@@ -140,13 +140,13 @@ func TestParseID(t *testing.T) {
 		{
 			name:    "invalid",
 			args:    args{"15-5a"},
-			wantErr: true,
+			wantErr: ErrUserIDNotInterger,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseID(tt.args.idString)
-			if (err != nil) != tt.wantErr {
+			if err != tt.wantErr {
 				t.Errorf("ParseID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
