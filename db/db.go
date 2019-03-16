@@ -64,7 +64,7 @@ func InitForTests() {
 	migrationPath = "file:///app/migrations/"
 	err := Init(util.MustGetEnv("DATABASE_URL"))
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Error("Failed to initialize DB for tests")
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to initialize DB for tests")
 	}
 }
 
