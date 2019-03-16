@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 
@@ -38,8 +39,10 @@ func parseID(w http.ResponseWriter, req *http.Request) (ID user.ID, ok bool) {
 func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
+		// This is unexpected (but possible), so let's log this internally here
+		log.Printf("Failed to read request body, err: %s", err)
 		renderErrors(w, http.StatusBadRequest, responses.Error{
-			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body, err: %s", err),
+			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body"),
 		})
 		return
 	}
