@@ -47,7 +47,7 @@ type ID uint64
 
 // ParseID parses a string into a ID
 func ParseID(idString string) (ID, error) {
-	// Parse the string as base10 into a int64
+	// Parse the string as base10 into a uint64
 	idInt, err := strconv.ParseUint(idString, 10, 64)
 	if err != nil {
 		return 0, ErrUserIDNotValid
