@@ -1,4 +1,4 @@
-package handlers
+package render
 
 import (
 	"encoding/json"
@@ -8,7 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func render(w http.ResponseWriter, statusCode int, resp interface{}) {
+// Response renders a response from the resp provided
+func Response(w http.ResponseWriter, statusCode int, resp interface{}) {
 	respBytes, err := json.Marshal(resp)
 	if err != nil {
 		// This is an error because resp is controlled by the programmer and
@@ -23,6 +24,7 @@ func render(w http.ResponseWriter, statusCode int, resp interface{}) {
 	}
 }
 
-func renderErrors(w http.ResponseWriter, statusCode int, errors ...responses.Error) {
-	render(w, statusCode, responses.NewErrorResponse(errors...))
+// ErrorResponse renders the error response with the status code provided
+func ErrorResponse(w http.ResponseWriter, statusCode int, errors ...responses.Error) {
+	Response(w, statusCode, responses.NewErrorResponse(errors...))
 }
