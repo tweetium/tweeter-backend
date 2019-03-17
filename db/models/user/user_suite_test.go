@@ -117,4 +117,50 @@ var _ = Describe("User", func() {
 			})
 		})
 	})
+
+	Describe("validating users via Validate", func() {
+		var (
+			createUser            User
+			createUserRawPassword string
+		)
+
+		JustBeforeEach(func() {
+			// create pre-existing user
+			var err error
+			// need to use raw password for validate because createUser.Password is hashed :)
+			createUserRawPassword = "password"
+			createUser, err = Create("darren.tsung@gmail", createUserRawPassword)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("with same credentials", func() {
+			It("returns no errors", func() {
+				err := Validate(createUser.Email, createUserRawPassword)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("with invalid password", func() {
+			It("returns ErrMismatchedPassword", func() {
+				err := Validate(createUser.Email, "wrongpassword")
+				Expect(err).To(Equal(ErrMismatchedPassword))
+			})
+		})
+
+		Context("with non-existing user email", func() {
+			It("returns ErrUserNotFound", func() {
+				err := Validate("tiffany.ko@gmail.com", createUserRawPassword)
+				Expect(err).To(Equal(ErrUserNotFound))
+			})
+		})
+
+		Context("with too short password (for bcrypt)", func() {
+			It("returns ErrMismatchedPassword", func() {
+				// Hides implementation details that the password given
+				// is too short to be correct.
+				err := Validate(createUser.Email, "p")
+				Expect(err).To(Equal(ErrMismatchedPassword))
+			})
+		})
+	})
 })
