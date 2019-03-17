@@ -8,6 +8,7 @@ import (
 
 	"tweeter/db"
 
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -79,6 +80,7 @@ func Create(email, password string) (user User, err error) {
 			return User{}, ErrUserEmailAlreadyExists
 		}
 
+		logrus.WithFields(logrus.Fields{"err": err}).Warn("Failed to insert user into DB")
 		return User{}, ErrInternalError
 	}
 

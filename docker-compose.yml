@@ -19,6 +19,11 @@ services:
   db:
     container_name: db
     image: postgres:11.1
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
 
 volumes:
   go-cache:
+  postgres-data:
