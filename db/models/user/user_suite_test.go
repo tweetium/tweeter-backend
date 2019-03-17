@@ -48,9 +48,10 @@ var _ = Describe("User", func() {
 				Expect(user.Password).NotTo(Equal("password"))
 			})
 
-			// Maximum difference allowed due to latency with tests / db
-			var MaxTimeDiff = 1 * time.Second
 			It("has created and modified time within time limit", func() {
+				// Maximum difference allowed due to latency with tests / db
+				var MaxTimeDiff = 1 * time.Second
+
 				now := time.Now()
 				Expect(now.Sub(user.Created)).Should(BeNumerically("<", MaxTimeDiff))
 				Expect(now.Sub(user.Modified)).Should(BeNumerically("<", MaxTimeDiff))
