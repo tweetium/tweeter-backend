@@ -141,7 +141,7 @@ package user
 // 		{
 // 			name:    "invalid",
 // 			args:    args{"15-5a"},
-// 			wantErr: ErrUserIDNotInterger,
+// 			wantErr: ErrUserIDNotValid,
 // 		},
 // 	}
 // 	for _, tt := range tests {

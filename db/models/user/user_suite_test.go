@@ -19,13 +19,6 @@ func TestUser(t *testing.T) {
 }
 
 var _ = Describe("User", func() {
-	var (
-		email     string
-		password  string
-		user      User
-		createErr error
-	)
-
 	AfterEach(func() {
 		db.RollbackTransactionForTests()
 	})
@@ -35,16 +28,16 @@ var _ = Describe("User", func() {
 		db.BeginTransactionForTests()
 	})
 
-	JustBeforeEach(func() {
-		// Create in JustBeforeEach so email / password can be customized in BeforeEach
-		user, createErr = Create(email, password)
-	})
-
 	Describe("created via Create", func() {
 		Context("with a valid email and password", func() {
+			var (
+				user User
+			)
+
 			BeforeEach(func() {
-				email = "darren@onesignal.com"
-				password = "password"
+				var createErr error
+				user, createErr = Create("darren@onesignal.com", "password")
+				Expect(createErr).NotTo(HaveOccurred())
 			})
 
 			It("has same email", func() {
@@ -63,8 +56,64 @@ var _ = Describe("User", func() {
 				Expect(now.Sub(user.Modified)).Should(BeNumerically("<", MaxTimeDiff))
 			})
 
-			It("should not error", func() {
-				Expect(createErr).NotTo(HaveOccurred())
+			It("should err subsequent Creates with same email", func() {
+				_, err := Create("darren@onesignal.com", "someotherpassword")
+				Expect(err).To(Equal(ErrUserEmailAlreadyExists))
+			})
+		})
+
+		Context("with password too short", func() {
+			It("should error with ErrPasswordTooShort", func() {
+				_, createErr := Create("darren@onesignal.com", "pass")
+				Expect(createErr).To(Equal(ErrPasswordTooShort))
+			})
+		})
+	})
+
+	Describe("getting via Get", func() {
+		var (
+			createUser User
+		)
+
+		JustBeforeEach(func() {
+			// create pre-existing user
+			var err error
+			createUser, err = Create("darren.tsung@gmail", "password")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("getting createUser.ID", func() {
+			It("returns same user as createUser", func() {
+				Expect(Get(createUser.ID)).To(Equal(createUser))
+			})
+		})
+
+		Context("getting non-existent ID", func() {
+			It("errors with ErrUserNotFound", func() {
+				_, err := Get(999)
+				Expect(err).To(Equal(ErrUserNotFound))
+			})
+		})
+	})
+
+	Describe("parsing IDs via ParseID", func() {
+		Context("positive integer string", func() {
+			It("works and returns ID", func() {
+				Expect(ParseID("123")).To(Equal(ID(123)))
+			})
+		})
+
+		Context("negative integer string", func() {
+			It("errors with ErrUserIDNotValid", func() {
+				_, err := ParseID("-123")
+				Expect(err).To(Equal(ErrUserIDNotValid))
+			})
+		})
+
+		Context("invalid integer string", func() {
+			It("errors with ErrUserIDNotValid", func() {
+				_, err := ParseID("abc-123")
+				Expect(err).To(Equal(ErrUserIDNotValid))
 			})
 		})
 	})
