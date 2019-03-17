@@ -13,12 +13,22 @@ import (
 	"github.com/mattes/migrate/database/postgres"
 )
 
-// DB is the main database
-var DB *sqlx.DB
+// DB is a postgres Database connection / connection pool
+var DB Database
+
+var db *sqlx.DB
+var testTx *sqlx.Tx
+
+// Database is an abstraction over a sqlx.DB / sqlx.Tx (transaction)
+// a sqlx.DB is a connection pool and a Tx is a connection that has a transaction running on it
+type Database interface {
+	QueryRowx(query string, args ...interface{}) *sqlx.Row
+}
 
 // Init initializes and migrates the database given the provided connect url
 func Init(dbURL string) (err error) {
-	DB, err = sqlx.Connect("postgres", dbURL)
+	db, err = sqlx.Connect("postgres", dbURL)
+	DB = db
 	if err != nil {
 		return
 	}
@@ -29,6 +39,9 @@ func Init(dbURL string) (err error) {
 }
 
 func migrateDatabase(dbURL string) error {
+	// Use a different connection for migrations as we close the source below
+	// An attempt was made to re-use the existing db opened in Init, but it failed
+	// due to the migration.Up() failing due to "can't acquire lock"
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		return err
@@ -70,6 +83,31 @@ func InitForTests() {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to initialize DB for tests")
 	}
+}
+
+// BeginTransactionForTests creates a new transaction for the test
+// and injects it as the DB connection
+func BeginTransactionForTests() {
+	var err error
+	testTx, err = db.Beginx()
+	DB = testTx
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to begin DB transaction for tests")
+	}
+}
+
+// RollbackTransactionForTests cleans up the database for tests
+func RollbackTransactionForTests() {
+	if testTx == nil {
+		logrus.Fatal("Cannot TeardownForTests without testTx (did you call InitForTests?)")
+	}
+
+	err := testTx.Rollback()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to rollback DB transaction for tests")
+	}
+
+	DB = db
 }
 
 var migrationPath = "file://migrations/"
