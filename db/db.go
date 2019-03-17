@@ -23,7 +23,6 @@ var testTx *sqlx.Tx
 // a sqlx.DB is a connection pool and a Tx is a connection that has a transaction running on it
 type Database interface {
 	QueryRowx(query string, args ...interface{}) *sqlx.Row
-	MustExec(query string, args ...interface{}) sql.Result
 }
 
 // Init initializes and migrates the database given the provided connect url
