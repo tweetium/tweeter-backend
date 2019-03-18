@@ -7,12 +7,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"tweeter/handlers/endpoints/users"
-	"tweeter/handlers/middleware"
 )
 
 // RunWebserver starts up the webserver and blocks until it is finished
 func RunWebserver(port uint32) {
-	http.HandleFunc("/api/v1/users", middleware.Log(users.Handler))
+	users.Endpoint.Attach()
 
 	logrus.WithFields(logrus.Fields{"port": port}).Info("Http server started")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)

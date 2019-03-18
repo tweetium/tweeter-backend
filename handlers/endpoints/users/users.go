@@ -10,12 +10,18 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"tweeter/db/models/user"
+	"tweeter/handlers/endpoints"
 	"tweeter/handlers/render"
 	"tweeter/handlers/responses"
 )
 
-// Handler is the /api/v1/users/ endpoint
-func Handler(w http.ResponseWriter, req *http.Request) {
+// Endpoint is the /api/v1/users/ endpoint that handles user CRUD apis
+var Endpoint = endpoints.Endpoint{
+	URL:     "/api/v1/users",
+	Handler: handler,
+}
+
+func handler(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPut {
 		handleUserCreate(w, req)
 	} else {
