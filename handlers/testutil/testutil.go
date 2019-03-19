@@ -32,10 +32,11 @@ func MustReadErrors(resp *http.Response) []responses.Error {
 // MustSendRequest sends a correctly formatted request to the httptest.Server and fails if any error
 func MustSendRequest(server *httptest.Server, request RequestArgs) *http.Response {
 	url := server.URL + request.Endpoint
-	httpRequest := testutil.MustNewRequest(request.Method,
-		url,
-		request.GetBody(),
-	)
+	body, err := request.GetBody()
+	if err != nil {
+		ginkgo.Fail(fmt.Sprintf("Request body is invalid, err: %s, request: %+v", err, request))
+	}
+	httpRequest := testutil.MustNewRequest(request.Method, url, body)
 
 	resp, err := server.Client().Do(httpRequest)
 	if err != nil {
