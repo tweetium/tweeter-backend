@@ -77,7 +77,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 		case user.ErrInternalError:
 			render.ErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
 		case user.ErrPasswordTooShort:
-			render.ErrorResponse(w, http.StatusBadRequest, ErrTooShortPassword)
+			render.ErrorResponse(w, http.StatusBadRequest, ErrPasswordTooShort)
 		case user.ErrUserEmailAlreadyExists:
 			render.ErrorResponse(w, http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
 		default:

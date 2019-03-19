@@ -13,7 +13,6 @@ import (
 	"tweeter/handlers/endpoints/users"
 	"tweeter/handlers/responses"
 	. "tweeter/handlers/testutil"
-	. "tweeter/testutil"
 )
 
 func TestUsersEndpoint(t *testing.T) {
@@ -28,11 +27,11 @@ func TestUsersEndpoint(t *testing.T) {
 var _ = Describe("Users Endpoint", func() {
 	var (
 		server   *httptest.Server
-		request  *http.Request
+		request  RequestArgs
 		response *http.Response
 	)
 
-	var sendRequest = func(request *http.Request) *http.Response {
+	var sendRequest = func(request RequestArgs) *http.Response {
 		return MustSendRequest(server, request)
 	}
 
@@ -52,15 +51,15 @@ var _ = Describe("Users Endpoint", func() {
 	})
 
 	Describe("creating users via POST", func() {
-		var successfulRequest = func() *http.Request {
-			req := MustNewRequest(http.MethodPost,
-				"/api/v1/users",
-				MustJSONMarshal(map[string]interface{}{
+		var successfulRequest = func() RequestArgs {
+			return RequestArgs{
+				Method:   http.MethodPost,
+				Endpoint: "/api/v1/users",
+				JSONBody: map[string]interface{}{
 					"email":    "darren.tsung@gmail.com",
 					"password": "password",
-				}),
-			)
-			return req
+				},
+			}
 		}
 
 		Context("with a valid email and password", func() {
@@ -78,6 +77,18 @@ var _ = Describe("Users Endpoint", func() {
 				secondResponse := sendRequest(successfulRequest())
 				errors := MustReadErrors(secondResponse)
 				Expect(errors).To(Equal([]responses.Error{users.ErrEmailAlreadyExists("darren.tsung@gmail.com")}))
+			})
+		})
+
+		Context("with too short of a password", func() {
+			BeforeEach(func() {
+				request = successfulRequest()
+				request.JSONBody["password"] = "12345"
+			})
+
+			It("errors with users.ErrPasswordTooShort", func() {
+				errors := MustReadErrors(response)
+				Expect(errors).To(Equal([]responses.Error{users.ErrPasswordTooShort}))
 			})
 		})
 	})

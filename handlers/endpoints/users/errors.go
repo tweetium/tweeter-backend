@@ -14,8 +14,8 @@ var ErrEmailAlreadyExists = func(email string) responses.Error {
 	}
 }
 
-// ErrTooShortPassword is the responses.Error returned when password is too short
-var ErrTooShortPassword = responses.Error{
+// ErrPasswordTooShort is the responses.Error returned when password is too short
+var ErrPasswordTooShort = responses.Error{
 	Title:  "Password Too Short",
 	Detail: fmt.Sprintf("Password is too short, minimum password length: %d", user.MinimumPasswordLength),
 }

@@ -30,9 +30,14 @@ func MustReadErrors(resp *http.Response) []responses.Error {
 }
 
 // MustSendRequest sends a correctly formatted request to the httptest.Server and fails if any error
-func MustSendRequest(server *httptest.Server, request *http.Request) *http.Response {
-	request.URL = testutil.MustURLParse(server.URL + request.URL.Path)
-	resp, err := server.Client().Do(request)
+func MustSendRequest(server *httptest.Server, request RequestArgs) *http.Response {
+	url := server.URL + request.Endpoint
+	httpRequest := testutil.MustNewRequest(request.Method,
+		url,
+		testutil.MustJSONMarshal(request.JSONBody),
+	)
+
+	resp, err := server.Client().Do(httpRequest)
 	if err != nil {
 		errString := err.Error()
 		// if you try to send the same request twice, the body is consumed
