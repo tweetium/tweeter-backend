@@ -1,26 +1,56 @@
 package testutil
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"tweeter/handlers/responses"
+	"net/http/httptest"
+	"strings"
 
 	"github.com/onsi/ginkgo"
+
+	"tweeter/handlers/responses"
+	"tweeter/testutil"
 )
 
 // MustReadSuccessData fails with ginkgo.Fail if reading success request fails
 func MustReadSuccessData(resp *http.Response, data interface{}) {
+	var successResp responses.SuccessResponse
+	successResp.Data = data
+
+	mustJSONUnmarshalResponse(resp, &successResp)
+}
+
+// MustReadErrors fails with ginkgo.Fail if reading error request fails
+func MustReadErrors(resp *http.Response) []responses.Error {
+	var errorResp responses.ErrorResponse
+	mustJSONUnmarshalResponse(resp, &errorResp)
+
+	return errorResp.Errors
+}
+
+// MustSendRequest sends a correctly formatted request to the httptest.Server and fails if any error
+func MustSendRequest(server *httptest.Server, request *http.Request) *http.Response {
+	request.URL = testutil.MustURLParse(server.URL + request.URL.Path)
+	resp, err := server.Client().Do(request)
+	if err != nil {
+		errString := err.Error()
+		// if you try to send the same request twice, the body is consumed
+		if strings.Contains(errString, "with Body length 0") {
+			ginkgo.Fail(fmt.Sprintf("Failed to send request (looks like the request was sent twice) with err: %s", errString))
+		} else {
+			ginkgo.Fail(errString)
+		}
+	}
+
+	return resp
+}
+
+func mustJSONUnmarshalResponse(resp *http.Response, v interface{}) {
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		ginkgo.Fail(err.Error())
 	}
 
-	var successResp responses.SuccessResponse
-	successResp.Data = data
-	err = json.Unmarshal(bodyBytes, &successResp)
-	if err != nil {
-		ginkgo.Fail(fmt.Sprintf("Failed to unmarshal as responses.SuccessResponse, raw: %s, err: %s", string(bodyBytes), err))
-	}
+	testutil.MustJSONUnmarshalStrict(bodyBytes, v)
 }

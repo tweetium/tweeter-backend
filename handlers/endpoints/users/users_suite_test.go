@@ -11,6 +11,7 @@ import (
 	"tweeter/db"
 	"tweeter/db/models/user"
 	"tweeter/handlers/endpoints/users"
+	"tweeter/handlers/responses"
 	. "tweeter/handlers/testutil"
 	. "tweeter/testutil"
 )
@@ -26,12 +27,17 @@ func TestUsersEndpoint(t *testing.T) {
 
 var _ = Describe("Users Endpoint", func() {
 	var (
-		request     *http.Request
-		response    *http.Response
-		responseErr error
+		server   *httptest.Server
+		request  *http.Request
+		response *http.Response
 	)
 
+	var sendRequest = func(request *http.Request) *http.Response {
+		return MustSendRequest(server, request)
+	}
+
 	AfterEach(func() {
+		server.Close()
 		db.RollbackTransactionForTests()
 	})
 
@@ -41,14 +47,12 @@ var _ = Describe("Users Endpoint", func() {
 	})
 
 	JustBeforeEach(func() {
-		server := httptest.NewServer(nil)
-		request.URL = MustURLParse(server.URL + request.URL.Path)
-		response, responseErr = server.Client().Do(request)
-		server.Close()
+		server = httptest.NewServer(nil)
+		response = sendRequest(request)
 	})
 
 	Describe("creating users via POST", func() {
-		var basicSuccessfulRequest = func() *http.Request {
+		var successfulRequest = func() *http.Request {
 			req := MustNewRequest(http.MethodPost,
 				"/api/v1/users",
 				MustJSONMarshal(map[string]interface{}{
@@ -61,17 +65,19 @@ var _ = Describe("Users Endpoint", func() {
 
 		Context("with a valid email and password", func() {
 			BeforeEach(func() {
-				request = basicSuccessfulRequest()
-			})
-
-			It("should not have errored", func() {
-				Expect(responseErr).NotTo(HaveOccurred())
+				request = successfulRequest()
 			})
 
 			It("has a success response with non-zero ID", func() {
 				idData := struct{ ID user.ID }{}
 				MustReadSuccessData(response, idData)
 				Expect(idData.ID).NotTo(Equal(0))
+			})
+
+			It("errors for requests with the same email", func() {
+				secondResponse := sendRequest(successfulRequest())
+				errors := MustReadErrors(secondResponse)
+				Expect(errors).To(Equal([]responses.Error{users.ErrEmailAlreadyExists("darren.tsung@gmail.com")}))
 			})
 		})
 	})
