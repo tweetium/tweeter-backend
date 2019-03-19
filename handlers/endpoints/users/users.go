@@ -22,7 +22,7 @@ var Endpoint = endpoints.Endpoint{
 }
 
 func handler(w http.ResponseWriter, req *http.Request) {
-	if req.Method == http.MethodPut {
+	if req.Method == http.MethodPost {
 		handleUserCreate(w, req)
 	} else {
 		render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
@@ -64,9 +64,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	var createReq UserCreateReq
 	err = json.Unmarshal(body, &createReq)
 	if err != nil {
-		render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
-			Title: "Invalid Body", Detail: fmt.Sprintf("Failed to parse request body as json, err: %s", err),
-		})
+		render.ErrorResponse(w, http.StatusBadRequest, ErrInvalidBody)
 		return
 	}
 
@@ -77,15 +75,9 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 		case user.ErrInternalError:
 			render.ErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
 		case user.ErrPasswordTooShort:
-			render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
-				Title:  "Password Too Short",
-				Detail: fmt.Sprintf("Password is too short, minimum password length: %d", user.MinimumPasswordLength),
-			})
+			render.ErrorResponse(w, http.StatusBadRequest, ErrPasswordTooShort)
 		case user.ErrUserEmailAlreadyExists:
-			render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
-				Title:  "Email Already Exists",
-				Detail: fmt.Sprintf("User already exists for %s", createReq.Email),
-			})
+			render.ErrorResponse(w, http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
 			logrus.WithFields(logrus.Fields{"err": err}).Error("Uncaught error for user.Create")
