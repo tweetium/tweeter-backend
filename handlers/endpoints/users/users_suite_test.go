@@ -13,6 +13,7 @@ import (
 	"tweeter/handlers/endpoints/users"
 	"tweeter/handlers/responses"
 	. "tweeter/handlers/testutil"
+	. "tweeter/testutil"
 )
 
 func TestUsersEndpoint(t *testing.T) {
@@ -89,6 +90,19 @@ var _ = Describe("Users Endpoint", func() {
 			It("errors with users.ErrPasswordTooShort", func() {
 				errors := MustReadErrors(response)
 				Expect(errors).To(Equal([]responses.Error{users.ErrPasswordTooShort}))
+			})
+		})
+
+		Context("with malformed json", func() {
+			BeforeEach(func() {
+				request = successfulRequest()
+				request.JSONBody = nil
+				request.RawBody = StrPtr("not valid json")
+			})
+
+			It("errors with ErrInvalidBody", func() {
+				errors := MustReadErrors(response)
+				Expect(errors).To(Equal([]responses.Error{users.ErrInvalidBody}))
 			})
 		})
 	})

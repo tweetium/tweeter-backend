@@ -34,7 +34,7 @@ func MustSendRequest(server *httptest.Server, request RequestArgs) *http.Respons
 	url := server.URL + request.Endpoint
 	httpRequest := testutil.MustNewRequest(request.Method,
 		url,
-		testutil.MustJSONMarshal(request.JSONBody),
+		request.GetBody(),
 	)
 
 	resp, err := server.Client().Do(httpRequest)

@@ -64,9 +64,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	var createReq UserCreateReq
 	err = json.Unmarshal(body, &createReq)
 	if err != nil {
-		render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
-			Title: "Invalid Body", Detail: fmt.Sprintf("Failed to parse request body as json, err: %s", err),
-		})
+		render.ErrorResponse(w, http.StatusBadRequest, ErrInvalidBody)
 		return
 	}
 
