@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"reflect"
 
 	"github.com/onsi/ginkgo"
@@ -48,14 +47,4 @@ func MustNewRequest(method, url string, body io.Reader) *http.Request {
 	}
 
 	return req
-}
-
-// MustURLParse fails with ginkgo.Fail if making request fails
-func MustURLParse(urlStr string) *url.URL {
-	url, err := url.Parse(urlStr)
-	if err != nil {
-		ginkgo.Fail(err.Error())
-	}
-
-	return url
 }
