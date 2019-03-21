@@ -58,5 +58,8 @@ func mustJSONUnmarshalResponse(resp *http.Response, v interface{}) {
 		ginkgo.Fail(err.Error())
 	}
 
-	testutil.MustJSONUnmarshalStrict(bodyBytes, v)
+	err = testutil.MustJSONUnmarshalStrict(bodyBytes, v)
+	if err != nil {
+		ginkgo.Fail(fmt.Sprintf("%s - request: %+v", err.Error(), resp))
+	}
 }

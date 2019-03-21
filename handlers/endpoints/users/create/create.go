@@ -1,11 +1,10 @@
-package users
+package create
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -18,34 +17,18 @@ import (
 // Endpoint is the /api/v1/users/ endpoint that handles user CRUD apis
 var Endpoint = endpoints.Endpoint{
 	URL:     "/api/v1/users",
-	Handler: handler,
-}
-
-func handler(w http.ResponseWriter, req *http.Request) {
-	if req.Method == http.MethodPost {
-		handleUserCreate(w, req)
-	} else {
-		render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
-			Title: "Unsupported Method", Detail: fmt.Sprintf("Method %s is not supported (yet)", req.Method),
-		})
-	}
-}
-
-// parseID is unused, but will be used when user GET is added
-func parseID(w http.ResponseWriter, req *http.Request) (ID user.ID, ok bool) { //nolint
-	idString := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/api/v1/users/"), "/")
-	id, err := user.ParseID(idString)
-	if err != nil {
-		render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
-			Title: "Invalid User ID", Detail: fmt.Sprintf("Failed to parse ID from %s, err: %s", idString, err),
-		})
-		return 0, false
-	}
-
-	return id, true
+	Handler: handleUserCreate,
+	Methods: []string{http.MethodPost},
 }
 
 func handleUserCreate(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		// This shouldn't be possible given that the route only accepts POST requests
+		logrus.WithFields(logrus.Fields{"method": req.Method}).Error("Invalid method for users#create")
+		render.ErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
+		return
+	}
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		// This is unexpected (but possible), so let's log this internally here
