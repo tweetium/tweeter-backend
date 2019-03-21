@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/mux"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -18,8 +19,6 @@ import (
 
 func TestUsersEndpoint(t *testing.T) {
 	db.InitForTests()
-
-	users.Endpoint.Attach()
 
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Users Endpoint Suite")
@@ -47,7 +46,9 @@ var _ = Describe("Users Endpoint", func() {
 	})
 
 	JustBeforeEach(func() {
-		server = httptest.NewServer(nil)
+		r := mux.NewRouter()
+		users.Endpoint.Attach(r)
+		server = httptest.NewServer(r)
 		response = sendRequest(request)
 	})
 

@@ -3,6 +3,7 @@ module tweeter
 require (
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/google/pprof v0.0.0-20190109223431-e84dfd68c163 // indirect
+	github.com/gorilla/mux v1.7.0
 	github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6 // indirect
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.0.0

@@ -2,6 +2,9 @@ package endpoints
 
 import (
 	"net/http"
+
+	"github.com/gorilla/mux"
+
 	"tweeter/handlers/middleware"
 )
 
@@ -12,6 +15,6 @@ type Endpoint struct {
 }
 
 // Attach attaches the endpoint defined to the global http server
-func (e Endpoint) Attach() {
-	http.HandleFunc(e.URL, middleware.Log(e.Handler))
+func (e Endpoint) Attach(r *mux.Router) {
+	r.HandleFunc(e.URL, middleware.Log(e.Handler))
 }
