@@ -1,4 +1,4 @@
-package create
+package users
 
 import (
 	"encoding/json"
@@ -14,8 +14,8 @@ import (
 	"tweeter/handlers/responses"
 )
 
-// Endpoint is the /api/v1/users/ endpoint that handles user CRUD apis
-var Endpoint = endpoints.Endpoint{
+// CreateEndpoint is the /api/v1/users/ create endpoint
+var CreateEndpoint = endpoints.Endpoint{
 	URL:     "/api/v1/users",
 	Handler: handleUserCreate,
 	Methods: []string{http.MethodPost},

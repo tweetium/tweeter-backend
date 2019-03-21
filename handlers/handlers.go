@@ -7,13 +7,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	usersCreate "tweeter/handlers/endpoints/users/create"
+	"tweeter/handlers/endpoints/users"
 )
 
 // RunWebserver starts up the webserver and blocks until it is finished
 func RunWebserver(port uint32) {
 	r := mux.NewRouter()
-	usersCreate.Endpoint.Attach(r)
+	users.CreateEndpoint.Attach(r)
 
 	logrus.WithFields(logrus.Fields{"port": port}).Info("Http server started")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)

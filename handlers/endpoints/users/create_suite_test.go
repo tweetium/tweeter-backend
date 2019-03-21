@@ -1,4 +1,4 @@
-package create_test
+package users_test
 
 import (
 	"net/http"
@@ -11,7 +11,7 @@ import (
 
 	"tweeter/db"
 	"tweeter/db/models/user"
-	usersCreate "tweeter/handlers/endpoints/users/create"
+	"tweeter/handlers/endpoints/users"
 	"tweeter/handlers/responses"
 	. "tweeter/handlers/testutil"
 	. "tweeter/testutil"
@@ -47,7 +47,7 @@ var _ = Describe("Users#create Endpoint", func() {
 
 	JustBeforeEach(func() {
 		r := mux.NewRouter()
-		usersCreate.Endpoint.Attach(r)
+		users.CreateEndpoint.Attach(r)
 		server = httptest.NewServer(r)
 		response = sendRequest(request)
 	})
@@ -77,7 +77,7 @@ var _ = Describe("Users#create Endpoint", func() {
 		It("errors for requests with the same email", func() {
 			secondResponse := sendRequest(successfulRequest())
 			errors := MustReadErrors(secondResponse)
-			Expect(errors).To(Equal([]responses.Error{usersCreate.ErrEmailAlreadyExists("darren.tsung@gmail.com")}))
+			Expect(errors).To(Equal([]responses.Error{users.ErrEmailAlreadyExists("darren.tsung@gmail.com")}))
 		})
 	})
 
@@ -87,9 +87,9 @@ var _ = Describe("Users#create Endpoint", func() {
 			request.JSONBody["password"] = "12345"
 		})
 
-		It("errors with usersCreate.ErrPasswordTooShort", func() {
+		It("errors with users.ErrPasswordTooShort", func() {
 			errors := MustReadErrors(response)
-			Expect(errors).To(Equal([]responses.Error{usersCreate.ErrPasswordTooShort}))
+			Expect(errors).To(Equal([]responses.Error{users.ErrPasswordTooShort}))
 		})
 	})
 
@@ -102,7 +102,7 @@ var _ = Describe("Users#create Endpoint", func() {
 
 		It("errors with ErrInvalidBody", func() {
 			errors := MustReadErrors(response)
-			Expect(errors).To(Equal([]responses.Error{usersCreate.ErrInvalidBody}))
+			Expect(errors).To(Equal([]responses.Error{users.ErrInvalidBody}))
 		})
 	})
 
