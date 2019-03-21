@@ -24,19 +24,20 @@ func MustJSONMarshal(v interface{}) *bytes.Buffer {
 
 // MustJSONUnmarshalStrict disallows unknown fields on the json provided and
 // fails if the unmarshals errors
-func MustJSONUnmarshalStrict(b []byte, v interface{}) {
+func MustJSONUnmarshalStrict(b []byte, v interface{}) error {
 	// This check is not done when using json.Decoder directly (instead of json.Unmarshal)
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {
-		ginkgo.Fail(fmt.Sprintf("Can't unmarshal non-pointer type: '%s'", reflect.TypeOf(v).Name()))
+		return fmt.Errorf("Can't unmarshal non-pointer type: '%s'", reflect.TypeOf(v).Name())
 	}
 
 	dec := json.NewDecoder(bytes.NewBuffer(b))
 	dec.DisallowUnknownFields()
 	err := dec.Decode(&v)
 	if err != nil {
-		ginkgo.Fail(fmt.Sprintf("Failed to unmarshal as type: '%s', raw: %s, err: %s", reflect.TypeOf(v).Name(), string(b), err))
+		return fmt.Errorf("Failed to unmarshal as type: '%s', raw: %s, err: %s", reflect.TypeOf(v).Name(), string(b), err)
 	}
+	return nil
 }
 
 // MustNewRequest fails with ginkgo.Fail if making request fails

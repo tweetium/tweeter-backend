@@ -12,9 +12,13 @@ import (
 type Endpoint struct {
 	URL     string
 	Handler http.HandlerFunc
+	Methods []string
 }
 
 // Attach attaches the endpoint defined to the global http server
 func (e Endpoint) Attach(r *mux.Router) {
-	r.HandleFunc(e.URL, middleware.Log(e.Handler))
+	route := r.HandleFunc(e.URL, middleware.Log(e.Handler))
+	if e.Methods != nil {
+		route.Methods(e.Methods...)
+	}
 }
