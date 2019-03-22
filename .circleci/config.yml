@@ -4,10 +4,10 @@ jobs:
     docker:
       - image: golang:1.12
       - image: postgres:11.1
-        name: db
+        name: test-db
     environment:
       - GOCACHE: /go/cache
-      - DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres?sslmode=disable
+      - TEST_DATABASE_URL: postgresql://postgres:postgres@test-db:5432/postgres?sslmode=disable
     working_directory: /app
     steps:
       - checkout
@@ -22,7 +22,7 @@ jobs:
             DOCKERIZE_VERSION: v0.3.0
       - run: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $GOPATH/bin v1.15.0
       # Wait for postgres to accept connections before running tests
-      - run: dockerize -wait tcp://db:5432 -timeout 30s
+      - run: dockerize -wait tcp://test-db:5432 -timeout 30s
       - run: go test ./...
       - run: golangci-lint run ./...
       - save_cache:

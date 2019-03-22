@@ -10,22 +10,22 @@ import (
 
 	"tweeter/db/models/user"
 	"tweeter/handlers/endpoints"
-	"tweeter/handlers/render"
 	"tweeter/handlers/responses"
 )
 
 // CreateEndpoint is the /api/v1/users/ create endpoint
 var CreateEndpoint = endpoints.Endpoint{
+	Name:    "users#create",
 	URL:     "/api/v1/users",
 	Handler: handleUserCreate,
 	Methods: []string{http.MethodPost},
 }
 
-func handleUserCreate(w http.ResponseWriter, req *http.Request) {
+func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Context) {
 	if req.Method != http.MethodPost {
 		// This shouldn't be possible given that the route only accepts POST requests
 		logrus.WithFields(logrus.Fields{"method": req.Method}).Error("Invalid method for users#create")
-		render.ErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
+		ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
 		return
 	}
 
@@ -33,7 +33,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		// This is unexpected (but possible), so let's log this internally here
 		logrus.WithFields(logrus.Fields{"err": err}).Warn("Failed to read request body")
-		render.ErrorResponse(w, http.StatusBadRequest, responses.Error{
+		ctx.RenderErrorResponse(w, http.StatusBadRequest, responses.Error{
 			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body"),
 		})
 		return
@@ -47,7 +47,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	var createReq UserCreateReq
 	err = json.Unmarshal(body, &createReq)
 	if err != nil {
-		render.ErrorResponse(w, http.StatusBadRequest, ErrInvalidBody)
+		ctx.RenderErrorResponse(w, http.StatusBadRequest, ErrInvalidBody)
 		return
 	}
 
@@ -56,20 +56,20 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		switch err {
 		case user.ErrInternalError:
-			render.ErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
 		case user.ErrPasswordTooShort:
-			render.ErrorResponse(w, http.StatusBadRequest, ErrPasswordTooShort)
+			ctx.RenderErrorResponse(w, http.StatusBadRequest, ErrPasswordTooShort)
 		case user.ErrUserEmailAlreadyExists:
-			render.ErrorResponse(w, http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
+			ctx.RenderErrorResponse(w, http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
 			logrus.WithFields(logrus.Fields{"err": err}).Error("Uncaught error for user.Create")
-			render.ErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
 		}
 		return
 	}
 
-	render.Response(w, http.StatusOK, responses.NewSuccessResponse(struct {
+	ctx.RenderResponse(w, http.StatusOK, responses.NewSuccessResponse(struct {
 		ID user.ID
 	}{
 		newUser.ID,

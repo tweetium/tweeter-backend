@@ -79,7 +79,7 @@ func migrateDatabase(dbURL string) error {
 // since tests are run in the working directory they're located in.
 func InitForTests() {
 	migrationPath = "file:///app/migrations/"
-	err := Init(util.MustGetEnv("DATABASE_URL"))
+	err := Init(util.MustGetEnv("TEST_DATABASE_URL"))
 	if err != nil {
 		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to initialize DB for tests")
 	}

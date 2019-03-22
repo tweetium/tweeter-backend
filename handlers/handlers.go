@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 
 	"tweeter/handlers/endpoints/users"
@@ -14,6 +15,12 @@ import (
 func RunWebserver(port uint32) {
 	r := mux.NewRouter()
 	users.CreateEndpoint.Attach(r)
+
+	// Attach prometheus endpoint
+	handler := promhttp.Handler()
+	r.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		handler.ServeHTTP(w, r)
+	})
 
 	logrus.WithFields(logrus.Fields{"port": port}).Info("Http server started")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)
