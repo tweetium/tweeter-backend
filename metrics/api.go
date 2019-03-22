@@ -22,9 +22,19 @@ var (
 		},
 		[]string{"endpointName", "statusCode"},
 	)
+
+	// APIResponseErrors records the number of errors returned from an API endpoint.
+	APIResponseErrors = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "api_response_errors",
+			Help: "Number of response.Errors by title.",
+		},
+		[]string{"endpointName", "errorTitle"},
+	)
 )
 
 func init() {
 	prometheus.MustRegister(APIReceived)
 	prometheus.MustRegister(APIResponses)
+	prometheus.MustRegister(APIResponseErrors)
 }

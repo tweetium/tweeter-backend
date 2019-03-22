@@ -35,5 +35,13 @@ func Response(endpointName string, w http.ResponseWriter, statusCode int, resp i
 
 // ErrorResponse renders the error response with the status code provided
 func ErrorResponse(endpointName string, w http.ResponseWriter, statusCode int, errors ...responses.Error) {
+	for _, error := range errors {
+		metrics.APIResponseErrors.
+			With(prometheus.Labels{
+				"endpointName": endpointName,
+				"errorTitle":   error.Title,
+			}).Inc()
+	}
+
 	Response(endpointName, w, statusCode, responses.NewErrorResponse(errors...))
 }
