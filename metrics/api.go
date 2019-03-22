@@ -20,7 +20,7 @@ var (
 			Name: "api_responses",
 			Help: "Number of responses from an API endpoint.",
 		},
-		[]string{"endpointName", "code"},
+		[]string{"endpointName", "statusCode"},
 	)
 )
 

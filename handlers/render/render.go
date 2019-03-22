@@ -3,6 +3,7 @@ package render
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"tweeter/handlers/responses"
 	"tweeter/metrics"
 
@@ -25,7 +26,11 @@ func Response(endpointName string, w http.ResponseWriter, statusCode int, resp i
 		logrus.WithFields(logrus.Fields{"err": err}).Warn("Failed to write bytes to http.ResponseWriter")
 	}
 
-	metrics.APIResponses.With(prometheus.Labels{"endpointName": endpointName, "code": string(statusCode)}).Inc()
+	metrics.APIResponses.
+		With(prometheus.Labels{
+			"endpointName": endpointName,
+			"statusCode":   strconv.FormatInt(int64(statusCode), 10),
+		}).Inc()
 }
 
 // ErrorResponse renders the error response with the status code provided
