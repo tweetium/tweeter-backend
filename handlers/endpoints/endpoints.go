@@ -3,6 +3,7 @@ package endpoints
 import (
 	"net/http"
 
+	"github.com/getsentry/raven-go"
 	"github.com/gorilla/mux"
 
 	"tweeter/handlers/middleware"
@@ -44,6 +45,7 @@ func (e Endpoint) Attach(r *mux.Router) {
 	handler := func(w http.ResponseWriter, r *http.Request) { e.Handler(w, r, ctx) }
 	handler = middleware.Log(handler)
 	handler = middleware.Metrics(e.Name, handler)
+	handler = raven.RecoveryHandler(handler)
 
 	route := r.HandleFunc(e.URL, handler)
 	if e.Methods != nil {
