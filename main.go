@@ -28,15 +28,15 @@ func main() {
 	hook.StacktraceConfiguration.Level = logrus.WarnLevel
 
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"dsn": sentryDSN}).Error("Failed to set up Sentry hook")
+		logrus.WithField("dsn", sentryDSN).Error("Failed to set up Sentry hook")
 	} else {
-		logrus.WithFields(logrus.Fields{"dsn": sentryDSN}).Info("Successfully set up Sentry hook")
+		logrus.WithField("dsn", sentryDSN).Info("Successfully set up Sentry hook")
 		logrus.AddHook(hook)
 	}
 
 	err = db.Init(dbURL)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to initialize database")
+		logrus.WithError(err).Fatal("Failed to initialize database")
 	}
 
 	handlers.RunWebserver(port)

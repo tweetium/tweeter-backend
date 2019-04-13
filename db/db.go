@@ -34,7 +34,7 @@ func Init(dbURL string) (err error) {
 	}
 
 	err = migrateDatabase(dbURL)
-	logrus.WithFields(logrus.Fields{"url": dbURL}).Info("Connected to database")
+	logrus.WithField("url", dbURL).Info("Connected to database")
 	return
 }
 
@@ -59,12 +59,12 @@ func migrateDatabase(dbURL string) error {
 
 	err = m.Up()
 	if err != nil && err != migrate.ErrNoChange {
-		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Error running migration.Up()")
+		logrus.WithError(err).Fatal("Error running migration.Up()")
 	}
 
 	version, dirty, err := m.Version()
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Error running migration.Version()")
+		logrus.WithError(err).Fatal("Error running migration.Version()")
 	}
 	m.Close()
 	logrus.WithFields(logrus.Fields{
@@ -81,7 +81,7 @@ func InitForTests() {
 	migrationPath = "file:///app/migrations/"
 	err := Init(util.MustGetEnv("TEST_DATABASE_URL"))
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to initialize DB for tests")
+		logrus.WithError(err).Fatal("Failed to initialize DB for tests")
 	}
 }
 
@@ -92,7 +92,7 @@ func BeginTransactionForTests() {
 	testTx, err = db.Beginx()
 	DB = testTx
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to begin DB transaction for tests")
+		logrus.WithError(err).Fatal("Failed to begin DB transaction for tests")
 	}
 }
 
@@ -104,7 +104,7 @@ func RollbackTransactionForTests() {
 
 	err := testTx.Rollback()
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Failed to rollback DB transaction for tests")
+		logrus.WithError(err).Fatal("Failed to rollback DB transaction for tests")
 	}
 
 	DB = db

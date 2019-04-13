@@ -80,7 +80,7 @@ func Create(email, password string) (user User, err error) {
 			return User{}, ErrUserEmailAlreadyExists
 		}
 
-		logrus.WithFields(logrus.Fields{"err": err}).Warn("Failed to insert user into DB")
+		logrus.WithError(err).Warn("Failed to insert user into DB")
 		return User{}, ErrInternalError
 	}
 

@@ -11,7 +11,7 @@ import (
 func MustGetEnv(env string) string {
 	envValue := os.Getenv(env)
 	if envValue == "" {
-		logrus.WithFields(logrus.Fields{"env": env}).Fatal("MustGetEnv did not find env")
+		logrus.WithField("env", env).Fatal("MustGetEnv did not find env")
 	}
 	return envValue
 }
