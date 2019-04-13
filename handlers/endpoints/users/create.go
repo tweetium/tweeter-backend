@@ -25,7 +25,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 	if req.Method != http.MethodPost {
 		// This shouldn't be possible given that the route only accepts POST requests
 		logrus.WithField("method", req.Method).Error("Invalid method for users#create")
-		ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
+		ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
 		return
 	}
 
@@ -33,7 +33,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 	if err != nil {
 		// This is unexpected (but possible), so let's log this internally here
 		logrus.WithError(err).Warn("Failed to read request body")
-		ctx.RenderErrorResponse(w, http.StatusBadRequest, responses.Error{
+		ctx.RenderErrorResponse(http.StatusBadRequest, responses.Error{
 			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body"),
 		})
 		return
@@ -47,7 +47,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 	var createReq UserCreateReq
 	err = json.Unmarshal(body, &createReq)
 	if err != nil {
-		ctx.RenderErrorResponse(w, http.StatusBadRequest, ErrInvalidBody)
+		ctx.RenderErrorResponse(http.StatusBadRequest, ErrInvalidBody)
 		return
 	}
 
@@ -56,20 +56,20 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 	if err != nil {
 		switch err {
 		case user.ErrInternalError:
-			ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
 		case user.ErrPasswordTooShort:
-			ctx.RenderErrorResponse(w, http.StatusBadRequest, ErrPasswordTooShort)
+			ctx.RenderErrorResponse(http.StatusBadRequest, ErrPasswordTooShort)
 		case user.ErrUserEmailAlreadyExists:
-			ctx.RenderErrorResponse(w, http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
+			ctx.RenderErrorResponse(http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
 			logrus.WithError(err).Error("Uncaught error for user.Create")
-			ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
 		}
 		return
 	}
 
-	ctx.RenderResponse(w, http.StatusOK, responses.NewSuccessResponse(struct {
+	ctx.RenderResponse(http.StatusOK, responses.NewSuccessResponse(struct {
 		ID user.ID
 	}{
 		newUser.ID,
