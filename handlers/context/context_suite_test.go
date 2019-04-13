@@ -1,7 +1,9 @@
-package render_test
+package context_test
 
 import (
+	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -9,22 +11,30 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"tweeter/handlers/render"
+	"tweeter/handlers/context"
 	"tweeter/handlers/responses"
 	"tweeter/metrics"
 	. "tweeter/testutil"
 )
 
-func TestRender(t *testing.T) {
+func TestContext(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Render Endpoint Suite")
+	RunSpecs(t, "Context Endpoint Suite")
 }
 
-var _ = Describe("Render", func() {
+var _ = Describe("Context", func() {
 	var (
-		endpointName   = "TestEndpoint"
-		responseWriter = httptest.NewRecorder()
-		statusCode     = 200
+		endpointName = "TestEndpoint"
+		context      = context.New(
+			endpointName,
+			httptest.NewRecorder(),
+			MustNewRequest(
+				http.MethodGet,
+				"/test-endpoint/",
+				strings.NewReader("Hello world!"),
+			),
+		)
+		statusCode = 200
 	)
 
 	Context("with Response call", func() {
@@ -41,7 +51,7 @@ var _ = Describe("Render", func() {
 
 			diff := PrometheusCollectorDiff(
 				collector,
-				func() { render.Response(endpointName, responseWriter, statusCode, response) },
+				func() { context.RenderResponse(statusCode, response) },
 			)
 
 			Expect(diff).To(Equal(1.0))
@@ -55,11 +65,15 @@ var _ = Describe("Render", func() {
 					Title:  "Test Error Title",
 					Detail: "Test Detail Blah Blah Blah",
 				},
+				responses.Error{
+					Title:  "Second Error Title",
+					Detail: "Second Detail Blah Blah Blah",
+				},
 			}
 		)
 
 		JustBeforeEach(func() {
-			render.ErrorResponse(endpointName, responseWriter, statusCode, errors...)
+			context.RenderErrorResponse(statusCode, errors...)
 		})
 
 		It("records metrics to APIResponses with correct labels", func() {
@@ -71,13 +85,13 @@ var _ = Describe("Render", func() {
 
 			diff := PrometheusCollectorDiff(
 				collector,
-				func() { render.ErrorResponse(endpointName, responseWriter, statusCode, errors...) },
+				func() { context.RenderErrorResponse(statusCode, errors...) },
 			)
 
 			Expect(diff).To(Equal(1.0))
 		})
 
-		It("records metrics to APIResponseErrors with correct labels", func() {
+		It("records the error title to APIResponseErrors", func() {
 			collector := metrics.APIResponseErrors.
 				With(prometheus.Labels{
 					"endpointName": "TestEndpoint",
@@ -86,7 +100,22 @@ var _ = Describe("Render", func() {
 
 			diff := PrometheusCollectorDiff(
 				collector,
-				func() { render.ErrorResponse(endpointName, responseWriter, statusCode, errors...) },
+				func() { context.RenderErrorResponse(statusCode, errors...) },
+			)
+
+			Expect(diff).To(Equal(1.0))
+		})
+
+		It("records the second error title to APIResponseErrors", func() {
+			collector := metrics.APIResponseErrors.
+				With(prometheus.Labels{
+					"endpointName": "TestEndpoint",
+					"errorTitle":   "Second Error Title",
+				})
+
+			diff := PrometheusCollectorDiff(
+				collector,
+				func() { context.RenderErrorResponse(statusCode, errors...) },
 			)
 
 			Expect(diff).To(Equal(1.0))

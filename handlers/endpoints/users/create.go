@@ -6,9 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/sirupsen/logrus"
-
 	"tweeter/db/models/user"
+	"tweeter/handlers/context"
 	"tweeter/handlers/endpoints"
 	"tweeter/handlers/responses"
 )
@@ -21,10 +20,10 @@ var CreateEndpoint = endpoints.Endpoint{
 	Methods: []string{http.MethodPost},
 }
 
-func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Context) {
+func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx context.Context) {
 	if req.Method != http.MethodPost {
 		// This shouldn't be possible given that the route only accepts POST requests
-		logrus.WithField("method", req.Method).Error("Invalid method for users#create")
+		ctx.Logger().WithField("method", req.Method).Error("Invalid method for users#create")
 		ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
 		return
 	}
@@ -32,7 +31,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		// This is unexpected (but possible), so let's log this internally here
-		logrus.WithError(err).Warn("Failed to read request body")
+		ctx.Logger().WithError(err).Warn("Failed to read request body")
 		ctx.RenderErrorResponse(http.StatusBadRequest, responses.Error{
 			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body"),
 		})
@@ -63,7 +62,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 			ctx.RenderErrorResponse(http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
-			logrus.WithError(err).Error("Uncaught error for user.Create")
+			ctx.Logger().WithError(err).Error("Uncaught error for user.Create")
 			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
 		}
 		return
