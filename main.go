@@ -17,8 +17,8 @@ func main() {
 	port := util.MustGetEnvUInt32("PORT")
 	dbURL := util.MustGetEnv("DATABASE_URL")
 
-	sentry_dsn := os.Getenv("SENTRY_DSN")
-	hook, err := logrus_sentry.NewSentryHook(sentry_dsn, []logrus.Level{
+	sentryDSN := os.Getenv("SENTRY_DSN")
+	hook, err := logrus_sentry.NewSentryHook(sentryDSN, []logrus.Level{
 		logrus.PanicLevel,
 		logrus.FatalLevel,
 		logrus.ErrorLevel,
@@ -27,9 +27,9 @@ func main() {
 	hook.StacktraceConfiguration.Enable = true
 
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"dsn": sentry_dsn}).Error("Failed to set up Sentry hook")
+		logrus.WithFields(logrus.Fields{"dsn": sentryDSN}).Error("Failed to set up Sentry hook")
 	} else {
-		logrus.WithFields(logrus.Fields{"dsn": sentry_dsn}).Info("Successfully set up Sentry hook")
+		logrus.WithFields(logrus.Fields{"dsn": sentryDSN}).Info("Successfully set up Sentry hook")
 		logrus.AddHook(hook)
 	}
 
