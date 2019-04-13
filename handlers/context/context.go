@@ -20,6 +20,7 @@ type Context struct {
 	request        *http.Request
 }
 
+// New creates a Context
 func New(endpointName string, responseWriter http.ResponseWriter, request *http.Request) Context {
 	return Context{
 		endpointName,
