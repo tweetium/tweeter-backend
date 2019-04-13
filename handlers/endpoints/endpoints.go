@@ -6,12 +6,13 @@ import (
 	"github.com/getsentry/raven-go"
 	"github.com/gorilla/mux"
 
+	"tweeter/handlers/context"
 	"tweeter/handlers/middleware"
 )
 
 // HandlerFunc is type of function used to handle http requests and has
 // additional endpoint.Context
-type HandlerFunc func(http.ResponseWriter, *http.Request, Context)
+type HandlerFunc func(http.ResponseWriter, *http.Request, context.Context)
 
 // Endpoint is the type required to define an endpoint
 type Endpoint struct {
@@ -24,12 +25,7 @@ type Endpoint struct {
 // Attach attaches the endpoint defined to the global http server
 func (e Endpoint) Attach(r *mux.Router) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		ctx := Context{
-			endpoint:       &e,
-			responseWriter: w,
-			request:        r,
-		}
-
+		ctx := context.New(e.Name, w, r)
 		e.Handler(w, r, ctx)
 	}
 	handler = middleware.Log(handler)
