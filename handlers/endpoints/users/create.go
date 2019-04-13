@@ -24,7 +24,7 @@ var CreateEndpoint = endpoints.Endpoint{
 func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Context) {
 	if req.Method != http.MethodPost {
 		// This shouldn't be possible given that the route only accepts POST requests
-		logrus.WithFields(logrus.Fields{"method": req.Method}).Error("Invalid method for users#create")
+		logrus.WithField("method", req.Method).Error("Invalid method for users#create")
 		ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
 		return
 	}
@@ -32,7 +32,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		// This is unexpected (but possible), so let's log this internally here
-		logrus.WithFields(logrus.Fields{"err": err}).Warn("Failed to read request body")
+		logrus.WithError(err).Warn("Failed to read request body")
 		ctx.RenderErrorResponse(w, http.StatusBadRequest, responses.Error{
 			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body"),
 		})
@@ -63,7 +63,7 @@ func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx endpoints.Co
 			ctx.RenderErrorResponse(w, http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
-			logrus.WithFields(logrus.Fields{"err": err}).Error("Uncaught error for user.Create")
+			logrus.WithError(err).Error("Uncaught error for user.Create")
 			ctx.RenderErrorResponse(w, http.StatusInternalServerError, responses.ErrInternalError)
 		}
 		return

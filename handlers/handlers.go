@@ -22,9 +22,9 @@ func RunWebserver(port uint32) {
 		handler.ServeHTTP(w, r)
 	})
 
-	logrus.WithFields(logrus.Fields{"port": port}).Info("Http server started")
+	logrus.WithField("port", port).Info("Http server started")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Fatal("Http server exited with error")
+		logrus.WithError(err).Fatal("Http server exited with error")
 	}
 }

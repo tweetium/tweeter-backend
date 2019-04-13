@@ -17,13 +17,13 @@ func Response(endpointName string, w http.ResponseWriter, statusCode int, resp i
 	if err != nil {
 		// This is an error because resp is controlled by the programmer and
 		// should be correct in all situations
-		logrus.WithFields(logrus.Fields{"err": err}).Error("Resp passed to render was not json.Marshalable")
+		logrus.WithError(err).Error("Resp passed to render was not json.Marshalable")
 		return
 	}
 
 	w.WriteHeader(statusCode)
 	if _, err := w.Write(respBytes); err != nil {
-		logrus.WithFields(logrus.Fields{"err": err}).Warn("Failed to write bytes to http.ResponseWriter")
+		logrus.WithError(err).Warn("Failed to write bytes to http.ResponseWriter")
 	}
 
 	metrics.APIResponses.
