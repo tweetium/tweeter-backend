@@ -25,6 +25,7 @@ func main() {
 		logrus.WarnLevel,
 	})
 	hook.StacktraceConfiguration.Enable = true
+	hook.StacktraceConfiguration.Level = logrus.WarnLevel
 
 	if err != nil {
 		logrus.WithFields(logrus.Fields{"dsn": sentryDSN}).Error("Failed to set up Sentry hook")
