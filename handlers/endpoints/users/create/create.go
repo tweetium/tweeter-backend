@@ -1,4 +1,4 @@
-package users
+package create
 
 import (
 	"encoding/json"
@@ -9,11 +9,12 @@ import (
 	"tweeter/db/models/user"
 	handlerContext "tweeter/handlers/context"
 	"tweeter/handlers/endpoints"
+	"tweeter/handlers/endpoints/users"
 	"tweeter/handlers/responses"
 )
 
-// CreateEndpoint is the /api/v1/users/ create endpoint
-var CreateEndpoint = endpoints.Endpoint{
+// Endpoint is the /api/v1/users/ create endpoint
+var Endpoint = endpoints.Endpoint{
 	Name:    "users#create",
 	URL:     "/api/v1/users",
 	Handler: handleUserCreate,
@@ -46,7 +47,7 @@ func handleUserCreate(req *http.Request, ctx handlerContext.Context) {
 	var createReq UserCreateReq
 	err = json.Unmarshal(body, &createReq)
 	if err != nil {
-		ctx.RenderErrorResponse(http.StatusBadRequest, ErrInvalidBody)
+		ctx.RenderErrorResponse(http.StatusBadRequest, users.ErrInvalidBody)
 		return
 	}
 
@@ -57,9 +58,9 @@ func handleUserCreate(req *http.Request, ctx handlerContext.Context) {
 		case user.ErrInternalError:
 			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
 		case user.ErrPasswordTooShort:
-			ctx.RenderErrorResponse(http.StatusBadRequest, ErrPasswordTooShort)
+			ctx.RenderErrorResponse(http.StatusBadRequest, users.ErrPasswordTooShort)
 		case user.ErrUserEmailAlreadyExists:
-			ctx.RenderErrorResponse(http.StatusBadRequest, ErrEmailAlreadyExists(createReq.Email))
+			ctx.RenderErrorResponse(http.StatusBadRequest, users.ErrEmailAlreadyExists(createReq.Email))
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
 			ctx.Logger().WithError(err).Error("Uncaught error for user.Create")
