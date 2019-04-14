@@ -22,13 +22,6 @@ var Endpoint = endpoints.Endpoint{
 }
 
 func handleUserCreate(req *http.Request, ctx handlerContext.Context) {
-	if req.Method != http.MethodPost {
-		// This shouldn't be possible given that the route only accepts POST requests
-		ctx.Logger().WithField("method", req.Method).Error("Invalid method for users#create")
-		ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
-		return
-	}
-
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		// This is unexpected (but possible), so let's log this internally here
