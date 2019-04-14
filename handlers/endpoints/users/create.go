@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"tweeter/db/models/user"
-	"tweeter/handlers/context"
+	handlerContext "tweeter/handlers/context"
 	"tweeter/handlers/endpoints"
 	"tweeter/handlers/responses"
 )
@@ -20,7 +20,7 @@ var CreateEndpoint = endpoints.Endpoint{
 	Methods: []string{http.MethodPost},
 }
 
-func handleUserCreate(req *http.Request, ctx context.Context) {
+func handleUserCreate(req *http.Request, ctx handlerContext.Context) {
 	if req.Method != http.MethodPost {
 		// This shouldn't be possible given that the route only accepts POST requests
 		ctx.Logger().WithField("method", req.Method).Error("Invalid method for users#create")

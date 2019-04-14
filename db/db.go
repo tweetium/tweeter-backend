@@ -66,7 +66,15 @@ func migrateDatabase(dbURL string) error {
 	if err != nil {
 		logrus.WithError(err).Fatal("Error running migration.Version()")
 	}
-	m.Close()
+
+	sourceErr, databaseErr := m.Close()
+	if sourceErr != nil {
+		logrus.WithError(sourceErr).Fatal("Failed to close migration - source")
+	}
+	if databaseErr != nil {
+		logrus.WithError(databaseErr).Fatal("Failed to close migration - database")
+	}
+
 	logrus.WithFields(logrus.Fields{
 		"version": version,
 		"dirty":   dirty,
