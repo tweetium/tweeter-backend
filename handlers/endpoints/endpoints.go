@@ -12,7 +12,7 @@ import (
 
 // HandlerFunc is type of function used to handle http requests and has
 // additional endpoint.Context
-type HandlerFunc func(http.ResponseWriter, *http.Request, context.Context)
+type HandlerFunc func(*http.Request, context.Context)
 
 // Endpoint is the type required to define an endpoint
 type Endpoint struct {
@@ -26,7 +26,7 @@ type Endpoint struct {
 func (e Endpoint) Attach(r *mux.Router) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.New(e.Name, w, r)
-		e.Handler(w, r, ctx)
+		e.Handler(r, ctx)
 	}
 	handler = middleware.Log(handler)
 	handler = middleware.Metrics(e.Name, handler)
