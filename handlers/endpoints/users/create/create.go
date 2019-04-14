@@ -1,9 +1,6 @@
 package create
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"tweeter/db/models/user"
@@ -11,6 +8,7 @@ import (
 	"tweeter/handlers/endpoints"
 	"tweeter/handlers/endpoints/users"
 	"tweeter/handlers/responses"
+	"tweeter/handlers/util"
 )
 
 // Endpoint is the /api/users/ create endpoint
@@ -22,30 +20,18 @@ var Endpoint = endpoints.Endpoint{
 }
 
 func handleUserCreate(req *http.Request, ctx handlerContext.Context) {
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		// This is unexpected (but possible), so let's log this internally here
-		ctx.Logger().WithError(err).Warn("Failed to read request body")
-		ctx.RenderErrorResponse(http.StatusBadRequest, responses.Error{
-			Title: "Malformed Body", Detail: fmt.Sprintf("Failed to read request body"),
-		})
-		return
-	}
-
 	type UserCreateReq struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
 	var createReq UserCreateReq
-	err = json.Unmarshal(body, &createReq)
-	if err != nil {
-		ctx.RenderErrorResponse(http.StatusBadRequest, users.ErrInvalidBody)
+	ok := util.ParseBody(req, ctx, &createReq)
+	if !ok {
 		return
 	}
 
-	var newUser user.User
-	newUser, err = user.Create(createReq.Email, createReq.Password)
+	newUser, err := user.Create(createReq.Email, createReq.Password)
 	if err != nil {
 		switch err {
 		case user.ErrInternalError:
