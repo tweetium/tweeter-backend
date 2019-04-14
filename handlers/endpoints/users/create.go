@@ -20,7 +20,7 @@ var CreateEndpoint = endpoints.Endpoint{
 	Methods: []string{http.MethodPost},
 }
 
-func handleUserCreate(w http.ResponseWriter, req *http.Request, ctx context.Context) {
+func handleUserCreate(req *http.Request, ctx context.Context) {
 	if req.Method != http.MethodPost {
 		// This shouldn't be possible given that the route only accepts POST requests
 		ctx.Logger().WithField("method", req.Method).Error("Invalid method for users#create")
