@@ -8,13 +8,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 
-	"tweeter/handlers/endpoints/users"
+	usersCreate "tweeter/handlers/endpoints/users/create"
 )
 
 // RunWebserver starts up the webserver and blocks until it is finished
 func RunWebserver(port uint32) {
 	r := mux.NewRouter()
-	users.CreateEndpoint.Attach(r)
+	usersCreate.Endpoint.Attach(r)
 
 	// Attach prometheus endpoint
 	handler := promhttp.Handler()

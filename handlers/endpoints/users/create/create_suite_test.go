@@ -1,4 +1,4 @@
-package users_test
+package create_test
 
 import (
 	"net/http"
@@ -12,12 +12,13 @@ import (
 	"tweeter/db"
 	"tweeter/db/models/user"
 	"tweeter/handlers/endpoints/users"
+	usersCreate "tweeter/handlers/endpoints/users/create"
 	"tweeter/handlers/responses"
 	. "tweeter/handlers/testutil"
 	. "tweeter/testutil"
 )
 
-func TestUsersEndpoint(t *testing.T) {
+func TestCreateEndpoint(t *testing.T) {
 	db.InitForTests()
 
 	RegisterFailHandler(Fail)
@@ -47,7 +48,7 @@ var _ = Describe("Users#create Endpoint", func() {
 
 	JustBeforeEach(func() {
 		r := mux.NewRouter()
-		users.CreateEndpoint.Attach(r)
+		usersCreate.Endpoint.Attach(r)
 		server = httptest.NewServer(r)
 		response = sendRequest(request)
 	})
