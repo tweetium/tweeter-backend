@@ -13,10 +13,10 @@ import (
 	"tweeter/handlers/responses"
 )
 
-// Endpoint is the /api/v1/users/ create endpoint
+// Endpoint is the /api/users/ create endpoint
 var Endpoint = endpoints.Endpoint{
 	Name:    "users#create",
-	URL:     "/api/v1/users",
+	URL:     "/api/users",
 	Handler: handleUserCreate,
 	Methods: []string{http.MethodPost},
 }
