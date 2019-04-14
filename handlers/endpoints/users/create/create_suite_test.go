@@ -56,7 +56,7 @@ var _ = Describe("Users#create Endpoint", func() {
 	var successfulRequest = func() RequestArgs {
 		return RequestArgs{
 			Method:   http.MethodPost,
-			Endpoint: "/api/v1/users",
+			Endpoint: "/api/users",
 			JSONBody: map[string]interface{}{
 				"email":    "darren.tsung@gmail.com",
 				"password": "password",
