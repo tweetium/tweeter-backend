@@ -30,9 +30,6 @@ var ErrUserNotFound = errors.New("could not find user from information given")
 // ErrInternalError is the error returned when normal flow failed (db error, timeout, etc)
 var ErrInternalError = errors.New("internal error, retry later")
 
-// ErrMismatchedPassword is the error returned by Validate when password do not match stored password
-var ErrMismatchedPassword = errors.New("invalid password given")
-
 // ErrPasswordTooShort is the error returned by Create when the password is too short
 var ErrPasswordTooShort = errors.New("password too short")
 
@@ -84,40 +81,30 @@ func Create(email, password string) (user User, err error) {
 		return User{}, ErrInternalError
 	}
 
-	user, err = Get(id)
-	return
+	user, err = Find(FindByID{ID: id})
+	if err != nil {
+		return User{}, ErrInternalError
+	}
+	return user, nil
 }
 
-// Get queries and return a user if found, otherwise err
-func Get(userID ID) (user User, err error) {
-	err = db.DB.QueryRowx("SELECT * FROM users WHERE user_id = $1", userID).StructScan(&user)
+// Find finds and returns a user if found, otherwise err
+func Find(f FindBy) (user User, err error) {
+	user, err = f.Find()
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return user, ErrUserNotFound
 		}
 
+		logrus.WithError(err).Warn("Failed to find user from DB")
 		return user, ErrInternalError
 	}
 
 	return
 }
 
-// Validate returns nil if email / password match, otherwise err
-func Validate(email, password string) (err error) {
-	var hashedPassword string
-	err = db.DB.QueryRowx("SELECT password FROM users WHERE email = $1", email).Scan(&hashedPassword)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return ErrUserNotFound
-		}
-
-		return ErrInternalError
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	if err != nil {
-		return ErrMismatchedPassword
-	}
-
-	return nil
+// ComparePassword returns true if the password matches the stored password
+func (user User) ComparePassword(password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	return err == nil
 }
