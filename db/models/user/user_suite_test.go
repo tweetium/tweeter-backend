@@ -71,28 +71,68 @@ var _ = Describe("User", func() {
 		})
 	})
 
-	Describe("getting via Get", func() {
+	Describe("finding users via Find", func() {
 		var (
 			createUser User
+
+			findBy FindBy
+
+			findUser  User
+			findError error
 		)
 
-		JustBeforeEach(func() {
+		BeforeEach(func() {
 			// create pre-existing user
 			var err error
-			createUser, err = Create("darren.tsung@gmail", "password")
+			createUser, err = Create("darren.tsung@gmail.com", "password")
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		Context("getting createUser.ID", func() {
-			It("returns same user as createUser", func() {
-				Expect(Get(createUser.ID)).To(Equal(createUser))
+		JustBeforeEach(func() {
+			findUser, findError = Find(findBy)
+		})
+
+		Context("using FindByID", func() {
+			Context("with createUser.ID", func() {
+				BeforeEach(func() { findBy = FindByID{ID: createUser.ID} })
+
+				It("returns same user as createUser", func() {
+					Expect(findUser).To(Equal(createUser))
+				})
+
+				It("returns no error", func() {
+					Expect(findError).ToNot(HaveOccurred())
+				})
+			})
+
+			Context("with non-existent ID", func() {
+				BeforeEach(func() { findBy = FindByID{ID: 999} })
+
+				It("errors with ErrUserNotFound", func() {
+					Expect(findError).To(Equal(ErrUserNotFound))
+				})
 			})
 		})
 
-		Context("getting non-existent ID", func() {
-			It("errors with ErrUserNotFound", func() {
-				_, err := Get(999)
-				Expect(err).To(Equal(ErrUserNotFound))
+		Context("using FindByEmail", func() {
+			Context("with createUser.Email", func() {
+				BeforeEach(func() { findBy = FindByEmail{Email: createUser.Email} })
+
+				It("returns same user as createUser", func() {
+					Expect(findUser).To(Equal(createUser))
+				})
+
+				It("returns no error", func() {
+					Expect(findError).ToNot(HaveOccurred())
+				})
+			})
+
+			Context("with non-existent ID", func() {
+				BeforeEach(func() { findBy = FindByEmail{Email: "invalid@gmail.com"} })
+
+				It("errors with ErrUserNotFound", func() {
+					Expect(findError).To(Equal(ErrUserNotFound))
+				})
 			})
 		})
 	})
@@ -119,48 +159,46 @@ var _ = Describe("User", func() {
 		})
 	})
 
-	Describe("validating users via Validate", func() {
+	Describe("validating users via ComparePassword", func() {
 		var (
 			createUser            User
 			createUserRawPassword string
+
+			comparePassword string
+
+			passwordMatches bool
 		)
 
-		JustBeforeEach(func() {
+		BeforeEach(func() {
 			// create pre-existing user
 			var err error
 			// need to use raw password for validate because createUser.Password is hashed :)
 			createUserRawPassword = "password"
-			createUser, err = Create("darren.tsung@gmail", createUserRawPassword)
+			createUser, err = Create("darren.tsung@gmail.com", createUserRawPassword)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		Context("with same credentials", func() {
-			It("returns no errors", func() {
-				err := Validate(createUser.Email, createUserRawPassword)
-				Expect(err).ToNot(HaveOccurred())
+		JustBeforeEach(func() {
+			passwordMatches = createUser.ComparePassword(comparePassword)
+		})
+
+		Context("with correct password", func() {
+			BeforeEach(func() {
+				comparePassword = createUserRawPassword
+			})
+
+			It("returns true (password matches)", func() {
+				Expect(passwordMatches).To(Equal(true))
 			})
 		})
 
-		Context("with invalid password", func() {
-			It("returns ErrMismatchedPassword", func() {
-				err := Validate(createUser.Email, "wrongpassword")
-				Expect(err).To(Equal(ErrMismatchedPassword))
+		Context("with incorrect password", func() {
+			BeforeEach(func() {
+				comparePassword = "wrongpassword"
 			})
-		})
 
-		Context("with non-existing user email", func() {
-			It("returns ErrUserNotFound", func() {
-				err := Validate("tiffany.ko@gmail.com", createUserRawPassword)
-				Expect(err).To(Equal(ErrUserNotFound))
-			})
-		})
-
-		Context("with too short password (for bcrypt)", func() {
-			It("returns ErrMismatchedPassword", func() {
-				// Hides implementation details that the password given
-				// is too short to be correct.
-				err := Validate(createUser.Email, "p")
-				Expect(err).To(Equal(ErrMismatchedPassword))
+			It("returns false (password doesn't match)", func() {
+				Expect(passwordMatches).To(Equal(false))
 			})
 		})
 	})
