@@ -96,11 +96,8 @@ var _ = Describe("Users#login Endpoint", func() {
 	Context("with secrets initialized", func() {
 		BeforeEach(func() {
 			usersJWT.InitializeWithSecretsMap(
-				map[string]string{
-					"1": "03ad766e-1ef5-4019-98e5-e65beb286ae3",
-				},
-				// Use the 1 key as the current key
-				"1",
+				map[string]string{"1": "03ad766e-1ef5-4019-98e5-e65beb286ae3"},
+				"1", // the current key
 			)
 		})
 
