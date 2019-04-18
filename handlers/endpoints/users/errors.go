@@ -20,6 +20,14 @@ var ErrPasswordTooShort = responses.Error{
 	Detail: fmt.Sprintf("Password is too short, minimum password length: %d", user.MinimumPasswordLength),
 }
 
+// ErrInvalidCredentials is a deliberately generic responses.Error returned when
+// anything about the credentials is incorrect. This should not give any extra
+// information.
+var ErrInvalidCredentials = responses.Error{
+	Title:  "Invalid Credentials",
+	Detail: "The credentials provided were not correct",
+}
+
 // ErrInvalidBody is the responses.Error returned when request body could not be parsed
 var ErrInvalidBody = responses.Error{
 	Title: "Invalid Body", Detail: "Failed to parse request body as json",
