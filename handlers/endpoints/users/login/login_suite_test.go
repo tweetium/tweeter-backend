@@ -17,6 +17,7 @@ import (
 	usersLogin "tweeter/handlers/endpoints/users/login"
 	"tweeter/handlers/responses"
 	. "tweeter/handlers/testutil"
+	"tweeter/jwtsecrets"
 )
 
 func TestLoginEndpoint(t *testing.T) {
@@ -79,7 +80,7 @@ var _ = Describe("Users#login Endpoint", func() {
 	}
 
 	Context("without secrets initialized", func() {
-		BeforeEach(func() { usersJWT.ClearSecretsMap() })
+		BeforeEach(func() { jwtsecrets.Clear() })
 
 		Context("with a valid email and password", func() {
 			BeforeEach(func() {
@@ -90,12 +91,16 @@ var _ = Describe("Users#login Endpoint", func() {
 				errors := MustReadErrors(response)
 				Expect(errors).To(Equal([]responses.Error{responses.ErrInternalError}))
 			})
+
+			It("does not set any cookies", func() {
+				Expect(len(response.Cookies())).To(Equal(0))
+			})
 		})
 	})
 
 	Context("with secrets initialized", func() {
 		BeforeEach(func() {
-			usersJWT.InitializeWithSecretsMap(
+			jwtsecrets.Init(
 				map[string]string{"1": "03ad766e-1ef5-4019-98e5-e65beb286ae3"},
 				"1", // the current key
 			)
@@ -138,6 +143,10 @@ var _ = Describe("Users#login Endpoint", func() {
 				errors := MustReadErrors(response)
 				Expect(errors).To(Equal([]responses.Error{users.ErrInvalidCredentials}))
 			})
+
+			It("does not set any cookies", func() {
+				Expect(len(response.Cookies())).To(Equal(0))
+			})
 		})
 
 		Context("with an invalid password", func() {
@@ -148,6 +157,10 @@ var _ = Describe("Users#login Endpoint", func() {
 			It("errors with invalid credentials error", func() {
 				errors := MustReadErrors(response)
 				Expect(errors).To(Equal([]responses.Error{users.ErrInvalidCredentials}))
+			})
+
+			It("does not set any cookies", func() {
+				Expect(len(response.Cookies())).To(Equal(0))
 			})
 		})
 	})

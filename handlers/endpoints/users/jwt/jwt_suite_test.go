@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	usersJWT "tweeter/handlers/endpoints/users/jwt"
+	"tweeter/jwtsecrets"
 )
 
 func TestUsersJWT(t *testing.T) {
@@ -30,7 +31,7 @@ var _ = Describe("Users JWT", func() {
 	}
 
 	BeforeEach(func() {
-		usersJWT.InitializeWithSecretsMap(
+		jwtsecrets.Init(
 			map[string]string{"1": "03ad766e-1ef5-4019-98e5-e65beb286ae3"},
 			"1", // the current key
 		)
@@ -58,7 +59,7 @@ var _ = Describe("Users JWT", func() {
 
 		Context("after secret used is removed from list", func() {
 			JustBeforeEach(func() {
-				usersJWT.InitializeWithSecretsMap(
+				jwtsecrets.Init(
 					map[string]string{"2": "bde63f2d-be16-4493-810a-2ff897f1647b"},
 					"2", // the current key
 				)
@@ -74,7 +75,7 @@ var _ = Describe("Users JWT", func() {
 
 		Context("when secret is retired and new secret is used", func() {
 			JustBeforeEach(func() {
-				usersJWT.InitializeWithSecretsMap(
+				jwtsecrets.Init(
 					map[string]string{
 						"1": "03ad766e-1ef5-4019-98e5-e65beb286ae3",
 						"2": "bde63f2d-be16-4493-810a-2ff897f1647b",
