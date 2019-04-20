@@ -9,6 +9,8 @@ import (
 	"tweeter/handlers/endpoints/users"
 	"tweeter/handlers/responses"
 	"tweeter/handlers/util"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Endpoint is the /api/users/ create endpoint
@@ -35,15 +37,14 @@ func handleUserCreate(req *http.Request, ctx handlerContext.Context) {
 	if err != nil {
 		switch err {
 		case user.ErrInternalError:
-			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderInternalErrorResponse(err, logrus.WarnLevel, "user.Create encountered internal error")
 		case user.ErrPasswordTooShort:
 			ctx.RenderErrorResponse(http.StatusBadRequest, users.ErrPasswordTooShort)
 		case user.ErrUserEmailAlreadyExists:
 			ctx.RenderErrorResponse(http.StatusBadRequest, users.ErrEmailAlreadyExists(createReq.Email))
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
-			ctx.Logger().WithError(err).Error("Uncaught error for user.Create")
-			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderInternalErrorResponse(err, logrus.ErrorLevel, "Uncaught error type for user.Create")
 		}
 		return
 	}

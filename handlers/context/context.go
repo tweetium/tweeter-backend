@@ -76,3 +76,18 @@ func (c Context) RenderErrorResponse(statusCode int, errors ...responses.Error) 
 
 	c.RenderResponse(statusCode, responses.NewErrorResponse(errors...))
 }
+
+var errInternalError = responses.Error{
+	Title:  "Internal Error",
+	Detail: "Encountered internal error, please try again in a few minutes.",
+}
+
+// ErrInternalErrorForTests is used for assertions in tests, should not be used directly
+var ErrInternalErrorForTests = errInternalError
+
+// RenderInternalErrorResponse renders the internal error response
+// Extra parameters are required to improve debugging internal errors
+func (c Context) RenderInternalErrorResponse(err error, logLevel logrus.Level, args ...interface{}) {
+	c.Logger().WithError(err).Log(logLevel, args...)
+	c.RenderErrorResponse(http.StatusInternalServerError, errInternalError)
+}
