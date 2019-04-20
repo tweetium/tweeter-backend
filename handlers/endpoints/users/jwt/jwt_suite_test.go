@@ -107,7 +107,7 @@ var _ = Describe("Users JWT", func() {
 		})
 
 		It("errors on parsing with ErrTokenExpired", func() {
-			Expect(parsedError).To(Equal(usersJWT.ErrTokenExpired))
+			Expect(parsedError).To(Equal(jwtsecrets.ErrTokenExpired))
 		})
 	})
 })
