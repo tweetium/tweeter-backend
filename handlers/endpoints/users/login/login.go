@@ -11,6 +11,8 @@ import (
 	usersJWT "tweeter/handlers/endpoints/users/jwt"
 	"tweeter/handlers/responses"
 	"tweeter/handlers/util"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Endpoint is the /api/users/login endpoint
@@ -37,13 +39,12 @@ func handleUserLogin(req *http.Request, ctx handlerContext.Context) {
 	if err != nil {
 		switch err {
 		case user.ErrInternalError:
-			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderInternalErrorResponse(err, logrus.WarnLevel, "user.Find encountered internal error")
 		case user.ErrUserNotFound:
 			ctx.RenderErrorResponse(http.StatusBadRequest, users.ErrInvalidCredentials)
 		default:
 			// Logged as error because this indicates a programmer error, should fix the code if this happens
-			ctx.Logger().WithError(err).Error("Uncaught error for user.Login")
-			ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
+			ctx.RenderInternalErrorResponse(err, logrus.ErrorLevel, "Uncaught error for user.Login")
 		}
 		return
 	}
@@ -60,7 +61,8 @@ func handleUserLogin(req *http.Request, ctx handlerContext.Context) {
 		UserID: loginUser.ID,
 	})
 	if err != nil {
-		ctx.RenderErrorResponse(http.StatusInternalServerError, responses.ErrInternalError)
+		// This indicates a problem with the jwt secrets initialization - should be fixed by dev
+		ctx.RenderInternalErrorResponse(err, logrus.ErrorLevel, "usersJWT.GenerateToken failed")
 		return
 	}
 

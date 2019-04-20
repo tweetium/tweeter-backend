@@ -12,6 +12,7 @@ import (
 
 	"tweeter/db"
 	"tweeter/db/models/user"
+	handlerContext "tweeter/handlers/context"
 	"tweeter/handlers/endpoints/users"
 	usersJWT "tweeter/handlers/endpoints/users/jwt"
 	usersLogin "tweeter/handlers/endpoints/users/login"
@@ -89,7 +90,7 @@ var _ = Describe("Users#login Endpoint", func() {
 
 			It("errors with internal error", func() {
 				errors := MustReadErrors(response)
-				Expect(errors).To(Equal([]responses.Error{responses.ErrInternalError}))
+				Expect(errors).To(Equal([]responses.Error{handlerContext.ErrInternalErrorForTests}))
 			})
 
 			It("does not set any cookies", func() {

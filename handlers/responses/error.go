@@ -1,11 +1,5 @@
 package responses
 
-// ErrInternalError is a generic error used for all internal errors
-var ErrInternalError = Error{
-	Title:  "Internal Error",
-	Detail: "Encountered internal error, please try again in a few minutes.",
-}
-
 // ErrInvalidJSONBody is a generic Error returned when request body could not be parsed as JSON
 var ErrInvalidJSONBody = Error{
 	Title: "Invalid Body", Detail: "Failed to parse request body as json",
