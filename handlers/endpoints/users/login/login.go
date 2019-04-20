@@ -67,7 +67,7 @@ func handleUserLogin(req *http.Request, ctx handlerContext.Context) {
 	ctx.SetCookie(&http.Cookie{
 		Name:    usersJWT.CookieName,
 		Value:   tokenString,
-		Expires: time.Now().AddDate(1 /* year */, 0, 0),
+		Expires: time.Now().AddDate(0, 1 /* month */, 0),
 	})
 	ctx.RenderResponse(http.StatusOK, responses.NewSuccessResponse(nil))
 }
