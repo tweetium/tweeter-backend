@@ -9,12 +9,14 @@ import (
 	"github.com/sirupsen/logrus"
 
 	usersCreate "tweeter/handlers/endpoints/users/create"
+	usersLogin "tweeter/handlers/endpoints/users/login"
 )
 
 // RunWebserver starts up the webserver and blocks until it is finished
 func RunWebserver(port uint32) {
 	r := mux.NewRouter()
 	usersCreate.Endpoint.Attach(r)
+	usersLogin.Endpoint.Attach(r)
 
 	// Attach prometheus endpoint
 	handler := promhttp.Handler()

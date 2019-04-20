@@ -37,6 +37,11 @@ func (c Context) Logger() *logrus.Entry {
 	})
 }
 
+// SetCookie sets a cookie for the current request
+func (c Context) SetCookie(cookie *http.Cookie) {
+	http.SetCookie(c.responseWriter, cookie)
+}
+
 // RenderResponse renders a response from type provided
 func (c Context) RenderResponse(statusCode int, resp interface{}) {
 	respBytes, err := json.Marshal(resp)

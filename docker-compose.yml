@@ -12,6 +12,8 @@ services:
       PORT: 8090
       DATABASE_URL: "postgresql://postgres:postgres@db:5432/postgres?sslmode=disable"
       TEST_DATABASE_URL: "postgresql://postgres:postgres@test-db:5432/postgres?sslmode=disable"
+      JWT_SECRETS_MAP: '{"1":"858b19bc-23e8-439d-8403-90f3a2011dab"}'
+      JWT_SECRETS_CURRENT_KEY: "1"
     ports:
       - 8090:8090
     command: go run main.go
