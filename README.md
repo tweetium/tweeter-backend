@@ -1,2 +1,2 @@
-# tweeter-clone
-Research project to learn more by making a tweeter clone
+# tweeter-backend
+A Go backend written for the tweeter project. Tweet tweet!
