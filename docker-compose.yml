@@ -3,7 +3,9 @@ version: "3.2"
 services:
   tweeter-backend:
     container_name: tweeter-backend
-    build: ./
+    build:
+      context: ./
+      dockerfile: Dockerfile-Development
     volumes:
       - .:/app
       - go-cache:/go
