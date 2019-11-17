@@ -1,33 +1,36 @@
-version: 2
+version: 2.1
+
+orbs:
+  golang: heroku/golang@0.3.0
+  go: circleci/go@0.2.0
+
 jobs:
-  build:
+  run-tests:
     docker:
       - image: golang:1.12
       - image: postgres:11.1
         name: test-db
     environment:
-      - GOCACHE: /go/cache
       - TEST_DATABASE_URL: postgresql://postgres:postgres@test-db:5432/postgres?sslmode=disable
     working_directory: /app
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-go-{{ .Branch }}-{{ checksum "go.mod" }}
-            - v1-go-master-{{ checksum "go.mod" }}
-            - v1-go-
+      - go/load-cache:
+        key: go-mod-v1
+      # TODO: use dockerize orb when this PR gets merged: https://github.com/ganta/dockerize-orb/pull/8
       - run:
           command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
           environment:
-            DOCKERIZE_VERSION: v0.3.0
-      - run: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $GOPATH/bin v1.15.0
-      # Wait for postgres to accept connections before running tests
+            DOCKERIZE_VERSION: v0.6.1
+      # Wait for postgres to accept a connection before running tests
       - run: dockerize -wait tcp://test-db:5432 -timeout 30s
-      - run: go test ./...
-      - run: golangci-lint run ./...
-      - save_cache:
-          key: v1-go-{{ .Branch }}-{{ checksum "go.mod" }}
-          paths:
-            - /go/cache
-            - /go/src
-            - /go/pkg
+      - go/test
+      - go/save-cache:
+        key: go-mod-v1
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - golang/golangci-lint
+      - run-tests
