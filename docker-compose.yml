@@ -1,8 +1,8 @@
 version: "3.2"
 
 services:
-  app:
-    container_name: app
+  tweeter-backend:
+    container_name: tweeter-backend
     build: ./
     volumes:
       - .:/app
