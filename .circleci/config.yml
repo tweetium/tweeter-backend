@@ -51,4 +51,3 @@ workflows:
             branches:
               only:
                 - master
-                - build-app-image # for testing
