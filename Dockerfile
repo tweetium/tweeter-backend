@@ -18,5 +18,6 @@ RUN go build main.go
 FROM alpine:3.10
 
 COPY --from=build-phase /app/main /app
+COPY --from=build-phase /app/migrations/ /migrations/
 
 ENTRYPOINT [ "/app" ]
