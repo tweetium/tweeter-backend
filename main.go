@@ -17,7 +17,7 @@ import (
 func main() {
 	log.Init()
 
-	port := util.MustGetEnvUInt32("PORT")
+	port := util.GetEnvOrDefaultUInt32("PORT", "80")
 	dbURL := util.MustGetEnv("DATABASE_URL")
 
 	initUserJWT()
