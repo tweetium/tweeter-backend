@@ -1,0 +1,5 @@
+.circleci/
+docker-compose.yml
+Dockerfile-Development
+LICENSE
+README.md
