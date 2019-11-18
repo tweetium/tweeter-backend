@@ -7,7 +7,7 @@ orbs:
 jobs:
   run-tests:
     docker:
-      - image: golang:1.12
+      - image: golang:1.13.4
       - image: postgres:11.1
         name: test-db
     environment:
@@ -27,6 +27,15 @@ jobs:
       - go/test
       - go/save-cache:
         key: go-mod-v1
+  build-image:
+    machine: true
+    steps:
+      - checkout
+      - run: echo "$DOCKER_ACCESS_TOKEN" | docker login --username $DOCKER_USER --password-stdin
+      - run: docker build --tag tweetium/tweeter-backend:$CIRCLE_SHA1 .
+      - run: docker tag tweetium/tweeter-backend:$CIRCLE_SHA1 tweetium/tweeter-backend:latest
+      - run: docker push tweetium/tweeter-backend:$CIRCLE_SHA1
+      - run: docker push tweetium/tweeter-backend:latest
 
 workflows:
   version: 2
@@ -34,3 +43,11 @@ workflows:
     jobs:
       - golang/golangci-lint
       - run-tests
+      - build-image:
+          requires:
+            - run-tests
+            - golang/golangci-lint
+          filters:
+            branches:
+              only:
+                - master
