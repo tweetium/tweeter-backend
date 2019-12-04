@@ -3,6 +3,7 @@ module tweeter
 require (
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
+	github.com/avast/retry-go v2.4.3+incompatible
 	github.com/certifi/gocertifi v0.0.0-20190105021004-abcd57078448 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/evalphobia/logrus_sentry v0.8.2

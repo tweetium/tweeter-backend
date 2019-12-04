@@ -8,6 +8,7 @@ import (
 	_ "github.com/mattes/migrate/source/file" // required driver
 	"github.com/sirupsen/logrus"
 
+	retry "github.com/avast/retry-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/mattes/migrate"
 	"github.com/mattes/migrate/database/postgres"
@@ -27,8 +28,12 @@ type Database interface {
 
 // Init initializes and migrates the database given the provided connect url
 func Init(dbURL string) (err error) {
-	db, err = sqlx.Connect("postgres", dbURL)
-	DB = db
+	// Retry for default of 10 attempts, using 100ms / ExpoBackOff
+	err = retry.Do(func() error {
+		db, err = sqlx.Connect("postgres", dbURL)
+		DB = db
+		return err
+	})
 	if err != nil {
 		return
 	}
