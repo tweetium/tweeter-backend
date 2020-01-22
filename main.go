@@ -17,9 +17,8 @@ import (
 var version string
 
 func main() {
-	logrus.WithField("version", version).Info("Starting initialization")
+	logrus.WithField("version", version).Info("Initialization started")
 	log.Init(version)
-	logrus.Info("Initialized logger")
 
 	port := util.GetEnvOrDefaultUInt32("PORT", "80")
 	dbURL := util.MustGetEnv("DATABASE_URL")
