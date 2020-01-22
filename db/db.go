@@ -30,6 +30,7 @@ type Database interface {
 func Init(dbURL string) (err error) {
 	// Retry for default of 10 attempts, using 100ms / ExpoBackOff
 	err = retry.Do(func() error {
+		logrus.WithField("url", dbURL).Debug("Attempting to connect to database")
 		db, err = sqlx.Connect("postgres", dbURL)
 		DB = db
 		return err
