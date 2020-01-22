@@ -24,7 +24,9 @@ jobs:
             DOCKERIZE_VERSION: v0.6.1
       # Wait for postgres to accept a connection before running tests
       - run: dockerize -wait tcp://test-db:5432 -timeout 30s
-      - go/test
+      # Run with parallel 1 so that package tests are not run in parallel, which can
+      # cause the migration to fail (can't get lock).
+      - run: go test -p 1 ./...
       - go/save-cache:
         key: go-mod-v1
   build-image:
