@@ -12,7 +12,9 @@ RUN go mod download
 # Now we can get everything.
 COPY . .
 
-RUN go build main.go
+ARG git_commit_sha=unknown
+
+RUN go build -ldflags "-X main.version=${git_commit_sha}" main.go
 
 # --- Create container with just the binary
 FROM alpine:3.10

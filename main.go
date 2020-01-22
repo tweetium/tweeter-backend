@@ -14,8 +14,11 @@ import (
 	"tweeter/util"
 )
 
+var version string
+
 func main() {
-	log.Init()
+	logrus.WithField("version", version).Info("Starting initialization")
+	log.Init(version)
 	logrus.Info("Initialized logger")
 
 	port := util.GetEnvOrDefaultUInt32("PORT", "80")
