@@ -10,7 +10,7 @@ import (
 )
 
 // Init sets up the logrus sentry hook
-func Init() {
+func Init(release string) {
 	hook, err := logrus_sentry.NewAsyncWithClientSentryHook(raven.DefaultClient, []logrus.Level{
 		logrus.PanicLevel,
 		logrus.FatalLevel,
@@ -19,6 +19,7 @@ func Init() {
 	})
 	hook.StacktraceConfiguration.Enable = true
 	hook.StacktraceConfiguration.Level = logrus.WarnLevel
+	hook.SetRelease(release)
 
 	if err != nil {
 		logrus.WithError(err).Error("Failed to set up Sentry hook")

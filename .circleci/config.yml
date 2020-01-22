@@ -32,7 +32,10 @@ jobs:
     steps:
       - checkout
       - run: echo "$DOCKER_ACCESS_TOKEN" | docker login --username $DOCKER_USER --password-stdin
-      - run: docker build --tag tweetium/tweeter-backend:$CIRCLE_SHA1 .
+      - run: >
+          docker build
+          --tag tweetium/tweeter-backend:$CIRCLE_SHA1
+          --build-arg git_commit_sha=$CIRCLE_SHA1 .
       - run: docker tag tweetium/tweeter-backend:$CIRCLE_SHA1 tweetium/tweeter-backend:latest
       - run: docker push tweetium/tweeter-backend:$CIRCLE_SHA1
       - run: docker push tweetium/tweeter-backend:latest
