@@ -16,11 +16,13 @@ import (
 
 func main() {
 	log.Init()
+	logrus.Info("Initialized logger")
 
 	port := util.GetEnvOrDefaultUInt32("PORT", "80")
 	dbURL := util.MustGetEnv("DATABASE_URL")
 
 	initUserJWT()
+	logrus.Info("Initialized User JWT store")
 
 	err := db.Init(dbURL)
 	if err != nil {
