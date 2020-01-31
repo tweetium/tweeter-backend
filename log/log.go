@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/evalphobia/logrus_sentry"
@@ -11,6 +12,9 @@ import (
 
 // Init sets up the logrus sentry hook
 func Init(release string) {
+	logrus.SetOutput(os.Stdout)
+	logrus.WithField("release", release).Info("Initialization started")
+
 	hook, err := logrus_sentry.NewAsyncWithClientSentryHook(raven.DefaultClient, []logrus.Level{
 		logrus.PanicLevel,
 		logrus.FatalLevel,

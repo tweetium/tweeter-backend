@@ -17,7 +17,6 @@ import (
 var version string
 
 func main() {
-	logrus.WithField("version", version).Info("Initialization started")
 	log.Init(version)
 
 	port := util.GetEnvOrDefaultUInt32("PORT", "80")
